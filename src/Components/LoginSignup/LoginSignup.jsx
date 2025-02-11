@@ -13,44 +13,37 @@ const LoginSignup = () => {
   const [adminPassword, setAdminPassword] = useState('');
   const { setState } = useMyContext();
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);  // Loading state
+  const [loading, setLoading] = useState(false);
 
-  // Backend URL (make sure it's correct for your environment)
-  const backendUrl = 'http://localhost:5001';  // Adjust this as needed
+  const backendUrl = 'http://localhost:5001';
 
-  // Handle form submission
   const handleSubmit = async (e) => {
-    e.preventDefault();  // Prevent form from refreshing the page
-    setError('');  // Reset error state
-    setLoading(true);  // Set loading state to true
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
     try {
       let response;
-
       if (action === 'Log in') {
-        // Sending a POST request for login
         response = await axios.post(`${backendUrl}/api/login`, { username, password });
-        if (response.data.success) {
-          setState('Logged in');
-          console.log('Login successful');
-        } else {
-          setError(response.data.message);
-        }
-      } else if (action === 'Register Employee') {
-        // Sending a POST request for registration
+      } else {
         response = await axios.post(`${backendUrl}/api/register`, { username, password, adminPassword });
-        if (response.data.success) {
-          console.log('Registration successful');
-          setState('Logged in');
-        } else {
-          setError(response.data.message);
-        }
       }
-    } catch (error) {
-      console.error('Error during request:', error);
-      setError('An error occurred, please try again later.');
+
+      if (response.data.success) {
+        setState('Logged in');
+        console.log(`${action} successful`);
+      } else {
+        setError(response.data.message);
+      }
+    } catch (err) {
+      if (err.response) {
+        setError(err.response.data.message || 'An unexpected error occurred.');
+      } else {
+        setError('Network error. Please check your connection.');
+      }
     } finally {
-      setLoading(false);  // Reset loading state
+      setLoading(false);
     }
   };
 
@@ -61,15 +54,14 @@ const LoginSignup = () => {
         <div className="underline"></div>
       </div>
 
-      {/* Form for input fields */}
       <form className="inputs" onSubmit={handleSubmit}>
         <div className="input">
           <img src={user_icon} alt="username icon" />
           <input
             placeholder="Username"
             type="text"
-            value={username}  // Bind state
-            onChange={(e) => setUsername(e.target.value)}  // Update state on input change
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           />
         </div>
 
@@ -78,8 +70,8 @@ const LoginSignup = () => {
           <input
             placeholder="Password"
             type="password"
-            value={password}  // Bind state
-            onChange={(e) => setPassword(e.target.value)}  // Update state on input change
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </div>
 
@@ -89,22 +81,21 @@ const LoginSignup = () => {
             <input
               placeholder="Administrator Password"
               type="password"
-              value={adminPassword}  // Bind state
-              onChange={(e) => setAdminPassword(e.target.value)}  // Update state on input change
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
             />
           </div>
         )}
 
-        {/* Error message */}
         {error && <div className="error-message">{error}</div>}
 
         <div className="submit-container">
-          <button type="submit" className={action === 'Register Employee' ? 'submit gray' : 'submit'} disabled={loading}>
-            {loading ? 'Processing...' : action === 'Log in' ? 'Login Employee' : 'Register Employee'}
+          <button type="submit" className="submit" disabled={loading}>
+            {loading ? 'Processing...' : action}
           </button>
 
           <div
-            className={action === 'Log in' ? 'submit gray' : 'submit'}
+            className="switch-btn"
             onClick={() => setAction(action === 'Log in' ? 'Register Employee' : 'Log in')}
           >
             {action === 'Log in' ? 'Switch to Register' : 'Switch to Login'}
