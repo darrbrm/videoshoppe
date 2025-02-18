@@ -1,14 +1,53 @@
+/* Main container with background, padding, and rounded corners */
 .container {
     display: flex;
     flex-direction: column;
     margin: auto;
-    margin-top: 200px;
+    margin-top: 100px; /* Adjusted to match homepage spacing */
     background: #d9d7d7;
     padding-bottom: 30px;
     width: 600px;
     border-radius: 50px;
+    position: relative; /* Allow absolute positioning inside the container */
 }
 
+/* Logout button styling (top-right corner) */
+button.logout {
+    background-color: #e74c3c; /* Red color */
+    color: white;
+    position: absolute;  /* Position the logout button at the top-right corner */
+    top: 20px;
+    right: 20px;
+    border-radius: 50px; /* Rounded corners */
+    border: none;
+    cursor: pointer;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+button.logout:hover {
+    background-color: #c0392b; /* Darker red on hover */
+}
+
+/* Back to Home button */
+button.back-to-home {
+    background-color: #000000; /* Black color */
+    color: white;
+    width: 220px;
+    height: 59px;
+    font-size: 19px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 20px auto; /* Center horizontally */
+    border-radius: 50px; /* Rounded corners */
+}
+
+button.back-to-home:hover {
+    background-color: #333; /* Darker black on hover */
+}
+
+/* Header style for the "Manage Employees" title */
 .header {
     display: flex;
     flex-direction: column;
@@ -18,75 +57,69 @@
     margin-top: 30px;
 }
 
-.text {
+.header .text {
     color: black;
     font-size: 48px;
     font-weight: 200;
 }
 
-.underline {
+.header .underline {
     width: 75px;
     height: 8px;
     background: black;
     border-radius: 9px;
 }
 
-.inputs {
-    margin-top: 55px;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
+/* Employee table styles */
+.employee-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
 }
 
-.input {
-    display: flex;
-    align-items: center;
-    margin: auto;
-    width: 480px;
-    height: 80px;
-    background: #eaeaea;
-    border-radius: 6px;
+.employee-table th, .employee-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
 }
 
-.input img {
-    margin: 0px 30px;
+.employee-table th {
+    background-color: #f4f4f4;
 }
 
-.input input {
-    height: 50px;
-    width: 400px;
-    background: transparent;
+.employee-table td button {
+    margin: 0 5px;
+    padding: 8px 16px;
+    border-radius: 50px;
     border: none;
-    outline: none;
-    color: #797979;
-    font-size: 19px;
-    pointer-events: all;
+    cursor: pointer;
+    font-size: 16px;
 }
 
-.submit-container {
-    display: grid;
-    gap: 30px;
-    margin: 60px auto;
-    pointer-events: all;
+.employee-table td button:hover {
+    opacity: 0.8;
 }
 
-.submit {
+/* Action buttons (Add New Employee) */
+.action-buttons {
+    margin-top: 30px;
     display: flex;
     justify-content: center;
-    align-items: center;
+    gap: 20px;
+}
+
+.action-buttons button {
     width: 220px;
     height: 59px;
-    color: #fff;
-    background: #000000;
-    border-radius: 50px;
+    background-color: #000000;
+    color: white;
     font-size: 19px;
     font-weight: 700;
     cursor: pointer;
-    pointer-events: all;
+    border-radius: 50px;
+    transition: background-color 0.3s ease;
 }
 
-.gray {
-    background: #EAEAEA;
-    color: #676767;
-    cursor: pointer;
+.action-buttons button:hover {
+    background-color: #333; /* Darker black on hover */
 }
