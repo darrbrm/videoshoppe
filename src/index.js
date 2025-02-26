@@ -3,13 +3,18 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import { NavigationManager } from './Components/NavigationManager/NavigationManager';
+import { BrowserRouter } from 'react-router-dom';  // Import BrowserRouter
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
 root.render(
   <React.StrictMode>
-    <NavigationManager>
-    <App />
-    </NavigationManager>
+    {/* Wrap your app with BrowserRouter and NavigationManager */}
+    <BrowserRouter>
+      <NavigationManager>
+        <App />
+      </NavigationManager>
+    </BrowserRouter>
   </React.StrictMode>
 );
 

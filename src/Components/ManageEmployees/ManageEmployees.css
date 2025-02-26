@@ -1,125 +1,142 @@
 /* Main container with background, padding, and rounded corners */
 .container {
-    display: flex;
-    flex-direction: column;
-    margin: auto;
-    margin-top: 100px; /* Adjusted to match homepage spacing */
-    background: #d9d7d7;
-    padding-bottom: 30px;
-    width: 600px;
-    border-radius: 50px;
-    position: relative; /* Allow absolute positioning inside the container */
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-/* Logout button styling (top-right corner) */
-button.logout {
-    background-color: #e74c3c; /* Red color */
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.underline {
+    width: 50px;
+    height: 3px;
+    background-color: #000;
+    margin: 0 auto;
+}
+
+.error-message {
+    color: red;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.loading-message {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.form-container {
+    width: 60%;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px 12px;  /* Added padding on both sides */
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Ensure padding is included within width */
+}
+
+/* Save button (Update Employee button) */
+.save-button {
+    background-color: #000000; /* Black background */
     color: white;
-    position: absolute;  /* Position the logout button at the top-right corner */
-    top: 20px;
-    right: 20px;
-    border-radius: 50px; /* Rounded corners */
-    border: none;
-    cursor: pointer;
     padding: 10px 20px;
-    font-size: 16px;
-}
-
-button.logout:hover {
-    background-color: #c0392b; /* Darker red on hover */
-}
-
-/* Back to Home button */
-button.back-to-home {
-    background-color: #000000; /* Black color */
-    color: white;
-    width: 220px;
-    height: 59px;
+    border: none;
+    border-radius: 50px; /* Rounded button */
+    cursor: pointer;
+    width: 220px; /* Adjust width to match other button */
+    height: 59px; /* Match height to "Back to Home" button */
     font-size: 19px;
     font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin: 20px auto; /* Center horizontally */
-    border-radius: 50px; /* Rounded corners */
+    display: block;
+    margin: 20px auto;
 }
 
-button.back-to-home:hover {
+.save-button:hover {
     background-color: #333; /* Darker black on hover */
 }
 
-/* Header style for the "Manage Employees" title */
-.header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 9px;
-    width: 100%;
-    margin-top: 30px;
-}
-
-.header .text {
-    color: black;
-    font-size: 48px;
-    font-weight: 200;
-}
-
-.header .underline {
-    width: 75px;
-    height: 8px;
-    background: black;
-    border-radius: 9px;
-}
-
-/* Employee table styles */
+/* Employee table */
 .employee-table {
     width: 100%;
-    border-collapse: collapse;
     margin-top: 30px;
+    background-color: #fff; /* Table background set to white */
 }
 
-.employee-table th, .employee-table td {
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
 
-.employee-table th {
-    background-color: #f4f4f4;
+tr:hover {
+    background-color: #f1f1f1; /* Hover effect for row, gray when hovered */
 }
 
-.employee-table td button {
-    margin: 0 5px;
-    padding: 8px 16px;
-    border-radius: 50px;
+/* Back to Home button */
+.back-home-button-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.back-to-home {
+    background-color: #000000; /* Black background */
+    color: white;
+    padding: 10px 20px;
     border: none;
+    border-radius: 50px; /* Rounded button */
     cursor: pointer;
-    font-size: 16px;
+    width: 220px; /* Adjust width to match other button */
+    height: 59px; /* Match height to "Update Employee" button */
+    font-size: 19px;
+    font-weight: 700;
+    display: block;
+    margin: 20px auto;
 }
 
-.employee-table td button:hover {
-    opacity: 0.8;
+.back-to-home:hover {
+    background-color: #333; /* Darker black on hover */
 }
 
-/* Action buttons (Add New Employee) */
-.action-buttons {
-    margin-top: 30px;
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-}
-
-.action-buttons button {
-    width: 220px;
-    height: 59px;
+/* Delete button styling */
+button.delete-button {
     background-color: #000000;
     color: white;
+    width: 220px;
+    height: 59px;
     font-size: 19px;
     font-weight: 700;
     cursor: pointer;
-    border-radius: 50px;
     transition: background-color 0.3s ease;
+    margin: 20px auto;
+    border-radius: 50px;
+    display: block;
 }
-
-.action-buttons button:hover {
+  
+button.delete-button:hover {
     background-color: #333; /* Darker black on hover */
 }

@@ -5,6 +5,7 @@ import lock_icon from '../Assets/lock_icon.svg';
 import user_icon from '../Assets/user_icon.svg';
 import { useMyContext } from '../NavigationManager/NavigationManager';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const LoginSignup = () => {
   const [action, setAction] = useState('Log in');
@@ -14,6 +15,7 @@ const LoginSignup = () => {
   const { setState } = useMyContext();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();  // Use navigate for redirection
 
   const backendUrl = 'http://localhost:5001';
 
@@ -31,17 +33,17 @@ const LoginSignup = () => {
       }
 
       if (response.data.success) {
+        // Store token in localStorage after successful login
+        if (action === 'Log in') {
+          localStorage.setItem('token', response.data.token);  // Store the token
+        }
         setState('Logged in');
-        console.log(`${action} successful`);
+        navigate('/manage-employees');  // Redirect to the manage employees page
       } else {
         setError(response.data.message);
       }
     } catch (err) {
-      if (err.response) {
-        setError(err.response.data.message || 'An unexpected error occurred.');
-      } else {
-        setError('Network error. Please check your connection.');
-      }
+      setError('An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -11,11 +11,6 @@ import TrackRental from './Components/TrackRental/TrackRental.jsx';
 import { NavigationManager } from './Components/NavigationManager/NavigationManager.jsx';
 import { useMyContext } from './Components/NavigationManager/NavigationManager.jsx';
 
-
-
-
-
-
 function App() {
   const { state } = useMyContext();
 
