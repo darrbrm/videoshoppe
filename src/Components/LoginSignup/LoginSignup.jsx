@@ -7,6 +7,7 @@ import { useMyContext } from '../NavigationManager/NavigationManager';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+// useStates for the components of this page
 const LoginSignup = () => {
   const [action, setAction] = useState('Log in');
   const [username, setUsername] = useState('');
@@ -19,6 +20,7 @@ const LoginSignup = () => {
 
   const backendUrl = 'http://localhost:5001';
 
+// manages the user input fields
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -49,13 +51,15 @@ const LoginSignup = () => {
     }
   };
 
+// HTML returned by react 
   return (
-    <div className="container">
+    // "container" surrounds the header, buttons, input fields
+    <div className="container"> 
       <div className="header">
         <div className="text">{action}</div>
         <div className="underline"></div>
       </div>
-
+    
       <form className="inputs" onSubmit={handleSubmit}>
         <div className="input">
           <img src={user_icon} alt="username icon" />
