@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './ManageEmployees.css';
-import { useMyContext } from '../NavigationManager/NavigationManager.jsx'; // Import your context
+import { useMyContext } from '../NavigationManager/NavigationManager.jsx';
 
 const ManageEmployees = () => {
-  const { setState } = useMyContext();  // Use context to set state (assuming `setState` is available)
+  const { setState } = useMyContext(); 
 
   const [employees, setEmployees] = useState([]);
   const [formData, setFormData] = useState({
@@ -20,7 +20,6 @@ const ManageEmployees = () => {
 
   const backendUrl = 'http://localhost:5001';
 
-  // Fetch employees on component mount
   useEffect(() => {
     const fetchEmployees = async () => {
       setLoading(true);
@@ -65,27 +64,28 @@ const ManageEmployees = () => {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-
+  
     const token = localStorage.getItem('token');
     if (!token) {
       setError('No authorization token found');
       return;
     }
-
+  
     try {
       if (isCreating) {
-        // Creating a new employee
-        const response = await axios.post(`${backendUrl}/api/employees`, formData, {
+        await axios.post(`${backendUrl}/api/employees`, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setEmployees((prevEmployees) => [...prevEmployees, response.data]);
+  
+        const response = await axios.get(`${backendUrl}/api/employees`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setEmployees(response.data.employees || []);
       } else {
-        // Updating an existing employee
         await axios.put(`${backendUrl}/api/employees/${formData.id}`, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        
-        // Refetch employee data after update
+  
         const response = await axios.get(`${backendUrl}/api/employees`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -110,10 +110,9 @@ const ManageEmployees = () => {
   };
 
   const handleBackToHome = () => {
-    setState('Logged in');  // Update state to 'Logged in' when back to home is clicked
+    setState('Logged in');
   };
 
-  // Delete employee function
   const handleDeleteEmployee = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -126,13 +125,11 @@ const ManageEmployees = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Refetch employee data after deletion
       const response = await axios.get(`${backendUrl}/api/employees`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setEmployees(response.data.employees || []);
 
-      // Reset form data
       setIsCreating(false);
       setFormData({
         name: '',
@@ -144,6 +141,17 @@ const ManageEmployees = () => {
     } catch (err) {
       setError('Error deleting employee: ' + (err.response?.data?.message || err.message || 'Unknown error'));
     }
+  };
+
+  const handleCreateNewEmployee = () => {
+    setIsCreating(true);
+    setFormData({
+      name: '',
+      address: '',
+      phone_number: '',
+      full_time: false,
+      hours_worked: 0,
+    });
   };
 
   return (
@@ -202,10 +210,7 @@ const ManageEmployees = () => {
             </thead>
             <tbody>
               {employees.map((employee) => (
-                <tr
-                  key={employee.id}
-                  onClick={() => handleRowClick(employee)}
-                >
+                <tr key={employee.id} onClick={() => handleRowClick(employee)}>
                   <td>{employee.name}</td>
                   <td>{employee.address}</td>
                   <td>{employee.phone_number}</td>
@@ -223,6 +228,12 @@ const ManageEmployees = () => {
       <div className="back-home-button-container">
         <button className="back-to-home" onClick={handleBackToHome}>
           Back to Home
+        </button>
+      </div>
+
+      <div className="create-new-employee-button-container">
+        <button className="create-new-employee" onClick={handleCreateNewEmployee}>
+          Create New Employee
         </button>
       </div>
     </div>

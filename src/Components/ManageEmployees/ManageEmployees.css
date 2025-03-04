@@ -140,3 +140,23 @@ button.delete-button {
 button.delete-button:hover {
     background-color: #333; /* Darker black on hover */
 }
+
+/* Create New Employee button styling */
+.create-new-employee {
+    background-color: #000000; /* Black background */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 50px; /* Rounded button */
+    cursor: pointer;
+    width: 220px; /* Adjust width to match other button */
+    height: 59px; /* Match height to "Back to Home" button */
+    font-size: 19px;
+    font-weight: 700;
+    display: block;
+    margin: 20px auto;
+}
+
+.create-new-employee:hover {
+    background-color: #333; /* Darker black on hover */
+}
