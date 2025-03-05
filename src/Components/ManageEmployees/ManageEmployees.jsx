@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './ManageEmployees.css';
+import '../VideoShoppeUIStyleSheets/ManageEmployees.css';
 import { useMyContext } from '../NavigationManager/NavigationManager.jsx';
 
 const ManageEmployees = () => {
