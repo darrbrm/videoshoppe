@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import '../VideoShoppeUIStyleSheets/GenericStlye.css'
+import '../VideoShoppeUIStyleSheets/GenericStyle.css'
 import lock_icon from '../Assets/lock_icon.svg'
 import { useMyContext } from '../NavigationManager/NavigationManager';
 

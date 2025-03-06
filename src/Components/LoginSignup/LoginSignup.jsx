@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../VideoShoppeUIStyleSheets/GenericStlye.css'
+import '../VideoShoppeUIStyleSheets/GenericStyle.css'
 import key_icon from '../Assets/key_icon.svg';
 import lock_icon from '../Assets/lock_icon.svg';
 import user_icon from '../Assets/user_icon.svg';
@@ -18,7 +18,7 @@ const LoginSignup = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();  // Use navigate for redirection
 
-  const backendUrl = 'http://localhost:3001';
+  const backendUrl = 'http://localhost:5001';
 
 // manages the user input fields
   const handleSubmit = async (e) => {
