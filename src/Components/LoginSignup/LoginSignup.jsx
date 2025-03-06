@@ -40,7 +40,7 @@ const LoginSignup = () => {
           localStorage.setItem('token', response.data.token);  // Store the token
         }
         setState('Logged in');
-        navigate('/manage-employees');  // Redirect to the manage employees page
+        navigate('/home');  // Redirect to the home page
       } else {
         setError(response.data.message);
       }

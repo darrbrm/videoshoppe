@@ -1,19 +1,25 @@
-import React, {useState} from 'react'
-import '../VideoShoppeUIStyleSheets/GenericStyle.css'
-import lock_icon from '../Assets/lock_icon.svg'
+import React from 'react';
+import '../VideoShoppeUIStyleSheets/GenericStyle.css';
+import lock_icon from '../Assets/lock_icon.svg';
 import { useMyContext } from '../NavigationManager/NavigationManager';
+import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
     const { setState } = useMyContext();
+    const navigate = useNavigate(); // <-- Add this
 
-    // Function to handle state change and page transition
-    const handleStateChange = (newState) => {
-        setState(newState);  // This will immediately trigger the page transition
+    const handleNavigation = (newState, path) => {
+        setState(newState);
+        navigate(path); // <-- Update the URL properly
     };
 
     return (
         <div className='container'>
-            <button className='logout' onClick={() => setState('Logged out')}>
+            <button className='logout' onClick={() => { 
+                setState('Logged out'); 
+                localStorage.removeItem('authState'); // Clear auth on logout
+                navigate('/login'); 
+            }}>
                 <img src={lock_icon} alt='Lock' />
             </button>
             <div className='header'>
@@ -21,40 +27,28 @@ const HomePage = () => {
                 <div className='underline'></div>
             </div>
             <div className='submit-container'>
-
-                {/* Rent / Sell DVD */}
-                <div className='submit' onClick={() => handleStateChange('Rent / Sell DVD')}>
+                <div className='submit' onClick={() => handleNavigation('Rent / Sell DVD', '/rent-sell-dvd')}>
                     Rent / Sell DVD
                 </div>
-
-                {/* Manage Employees */}
-                <div className='submit' onClick={() => handleStateChange('Manage Employees')}>
+                <div className='submit' onClick={() => handleNavigation('Manage Employees', '/manage-employees')}>
                     Manage Employees
                 </div>
-
-                {/* Track Rental */}
-                <div className='submit' onClick={() => handleStateChange('Track Rental')}>
+                <div className='submit' onClick={() => handleNavigation('Track Rental', '/track-rental')}>
                     Track Rental
                 </div>
-
-                {/* Return DVD */}
-                <div className='submit' onClick={() => handleStateChange('Return DVD')}>
+                <div className='submit' onClick={() => handleNavigation('Return DVD', '/return-dvd')}>
                     Return DVD
                 </div>
-
-                {/* Manage Alerts */}
-                <div className='submit' onClick={() => handleStateChange('Manage Alerts')}>
+                <div className='submit' onClick={() => handleNavigation('Manage Alerts', '/manage-alerts')}>
                     Manage Alerts
                 </div>
-
-                {/* Inventory */}
-                <div className='submit' onClick={() => handleStateChange('Inventory')}>
+                <div className='submit' onClick={() => handleNavigation('Inventory', '/inventory')}>
                     Inventory
                 </div>
-
             </div>
         </div>
     );
 };
+
 
 export default HomePage;

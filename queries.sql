@@ -10,8 +10,12 @@ CREATE TABLE Employee (
   hours_worked FLOAT
 );
 
-INSERT INTO Employee (username, password, admin_password, name, address, phone_number, full_time, hours_worked)
-VALUES 
-('john_smith', 'john1234', 'admin5678', 'John Smith', '123 Elm Street, Springfield', '555-1234', TRUE, 40);
-
-SELECT * FROM EMPLOYEE;
+CREATE TABLE DVD {
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) UNIQUE,
+  genre VARCHAR(255),
+  director VARCHAR(255),
+  actors TEXT,
+  release_year VARCHAR(255),
+  amount INT
+};
