@@ -225,12 +225,6 @@ const ManageEmployees = () => {
         <p>No employees available</p>
       )}
 
-      <div className="back-home-button-container">
-        <button className="back-to-home" onClick={handleBackToHome}>
-          Back to Home
-        </button>
-      </div>
-
       <div className="create-new-employee-button-container">
         <button className="create-new-employee" onClick={handleCreateNewEmployee}>
           Create New Employee

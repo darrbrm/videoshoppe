@@ -178,6 +178,92 @@ app.delete('/api/employees/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// **Get all DVDs** (secured route)
+app.get('/api/dvds', authenticateToken, async (req, res) => {
+  console.log('Received request to /api/dvds'); // Log request
+  try {
+    const [dvds] = await db.query('SELECT * FROM DVD');
+    console.log('Fetched DVDs:', dvds); // Log result
+    res.status(200).json({ success: true, dvds });
+  } catch (err) {
+    console.error('Error fetching DVDs:', err);
+    res.status(500).json({ success: false, message: 'Server error fetching DVDs' });
+  }
+});
+
+// **Add a new DVD** (secured route)
+app.post('/api/dvds', authenticateToken, async (req, res) => {
+  const { title, genre, director, actors, release_year, quantity, price, available, requested_count } = req.body;
+
+  if (!title || !genre || !director) {
+    return res.status(400).json({ success: false, message: 'Please provide all required fields' });
+  }
+
+  try {
+    const [result] = await db.query(
+      'INSERT INTO DVD (title, genre, director, actors, release_year, quantity, price, available, requested_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [title, genre, director, actors, release_year, quantity, price, available ? 1 : 0, requested_count]
+    );
+
+    res.status(201).json({ 
+      success: true, 
+      message: 'DVD added successfully',
+      dvd: {
+        id: result.insertId,
+        title,
+        genre,
+        director,
+        actors,
+        release_year,
+        quantity,
+        price,
+        available,
+        requested_count
+      }
+    });
+  } catch (err) {
+    console.error('Error adding DVD:', err);
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ success: false, message: 'A DVD with this title already exists' });
+    }
+    res.status(500).json({ success: false, message: 'Server error adding DVD' });
+  }
+});
+
+// **Update a DVD** (secured route)
+app.put('/api/dvds/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { title, genre, director, actors, release_year, quantity, price, available, requested_count } = req.body;
+
+  try {
+    await db.query(
+      'UPDATE DVD SET title = ?, genre = ?, director = ?, actors = ?, release_year = ?, quantity = ?, price = ?, available = ?, requested_count = ? WHERE id = ?',
+      [title, genre, director, actors, release_year, quantity, price, available ? 1 : 0, requested_count, id]
+    );
+
+    res.status(200).json({ success: true, message: 'DVD updated successfully' });
+  } catch (err) {
+    console.error('Error updating DVD:', err);
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ success: false, message: 'A DVD with this title already exists' });
+    }
+    res.status(500).json({ success: false, message: 'Server error updating DVD' });
+  }
+});
+
+// **Delete a DVD** (secured route)
+app.delete('/api/dvds/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await db.query('DELETE FROM DVD WHERE id = ?', [id]);
+    res.status(200).json({ success: true, message: 'DVD deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting DVD:', err);
+    res.status(500).json({ success: false, message: 'Server error deleting DVD' });
+  }
+});
+
 // Start the server
 const port = process.env.PORT || 5001;
 app.listen(port, () => {
