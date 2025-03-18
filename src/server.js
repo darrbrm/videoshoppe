@@ -264,6 +264,33 @@ app.delete('/api/dvds/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// **Querying customer data** and handling `due_dates`
+app.get('/api/customers/search', async (req, res) => {
+  const { name } = req.query; // Get the search name
+  
+  if (!name) {
+    return res.status(400).json({ message: 'Name query parameter is required' });
+  }
+
+  // Query the database to find a matching customer (case insensitive)
+  const query = `SELECT * FROM CUSTOMER WHERE LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ?`;
+  try {
+    const [result] = await db.execute(query, [`%${name.toLowerCase()}%`, `%${name.toLowerCase()}%`]);
+    
+    if (result.length > 0) {
+      const customer = result[0];
+      // Ensure `due_dates` is an array (if stored as a comma-separated string in DB)
+      customer.due_dates = customer.due_dates ? customer.due_dates.split(',') : [];
+      res.json({ customer });
+    } else {
+      res.status(404).json({ message: 'Customer not found' });
+    }
+  } catch (err) {
+    console.error('Error retrieving customer:', err);
+    res.status(500).json({ message: 'Error retrieving customer' });
+  }
+});
+
 // Start the server
 const port = process.env.PORT || 5001;
 app.listen(port, () => {

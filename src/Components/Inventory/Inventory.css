@@ -1,105 +1,3 @@
-/* Main container with background, padding, and rounded corners */
-.container {
-    width: 80%;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.underline {
-    width: 50px;
-    height: 3px;
-    background-color: #000;
-    margin: 0 auto;
-}
-
-.error-message {
-    color: red;
-    text-align: center;
-    margin-top: 20px;
-}
-
-.loading-message {
-    text-align: center;
-    margin-top: 20px;
-}
-
-/* Search container styling */
-.search-container {
-    display: flex;
-    justify-content: center;
-    margin: 20px 0;
-}
-
-.search-input {
-    width: 40%;
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.search-category {
-    padding: 8px 12px;
-    margin-right: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.form-container {
-    width: 60%;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    font-weight: bold;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 8px 12px;  /* Added padding on both sides */
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box; /* Ensure padding is included within width */
-}
-
-.form-group input[type="checkbox"] {
-    width: auto;
-}
-
-/* Save button (Update DVD button) */
-.save-button {
-    background-color: #000000; /* Black background */
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 50px; /* Rounded button */
-    cursor: pointer;
-    width: 220px; /* Adjust width to match other button */
-    height: 59px; /* Match height to "Back to Home" button */
-    font-size: 19px;
-    font-weight: 700;
-    display: block;
-    margin: 20px auto;
-}
-
-.save-button:hover {
-    background-color: #333; /* Darker black on hover */
-}
-
 /* Inventory table */
 .inventory-table {
     width: 100%;
@@ -123,6 +21,26 @@ tr:hover {
     background-color: #f1f1f1; /* Hover effect for row, gray when hovered */
 }
 
+/* Create New DVD button styling */
+.create-new-inventory-item {
+    background-color: #000000; /* Black background */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 50px; /* Rounded button */
+    cursor: pointer;
+    width: 220px; /* Adjust width to match other button */
+    height: 59px; /* Match height to "Back to Home" button */
+    font-size: 19px;
+    font-weight: 700;
+    display: block;
+    margin: 20px auto;
+}
+
+.create-new-inventory-item:hover {
+    background-color: #333; /* Darker black on hover */
+}
+
 /* Delete button styling */
 button.delete-button {
     background-color: #000000;
@@ -142,22 +60,51 @@ button.delete-button:hover {
     background-color: #333; /* Darker black on hover */
 }
 
-/* Create New DVD button styling */
-.create-new-inventory-item {
-    background-color: #000000; /* Black background */
+/* Custom Search Section */
+.search-section {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    align-items: center;
+}
+
+.search-section label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.search-section select, 
+.search-section input {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.search-section select {
+    margin-right: 10px;
+    width: 160px; /* Adjust width for dropdown */
+}
+
+.search-section input {
+    width: 40%;
+}
+
+/* Inventory-specific search button */
+.search-button {
+    background-color: #000000;
     color: white;
     padding: 10px 20px;
     border: none;
-    border-radius: 50px; /* Rounded button */
+    border-radius: 50px;
     cursor: pointer;
-    width: 220px; /* Adjust width to match other button */
-    height: 59px; /* Match height to "Back to Home" button */
-    font-size: 19px;
+    font-size: 16px;
     font-weight: 700;
+    height: 50px;
+    width: 180px;
     display: block;
-    margin: 20px auto;
+    margin-left: 10px;
 }
 
-.create-new-inventory-item:hover {
-    background-color: #333; /* Darker black on hover */
+.search-button:hover {
+    background-color: #333;
 }

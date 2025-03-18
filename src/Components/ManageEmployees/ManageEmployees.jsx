@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../VideoShoppeUIStyleSheets/ManageEmployees.css';
+import '../VideoShoppeUIStyleSheets/GenericStyle.css';
 import { useMyContext } from '../NavigationManager/NavigationManager.jsx';
+import { useNavigate } from 'react-router-dom';
+import lock_icon from '../Assets/lock_icon.svg';
 
 const ManageEmployees = () => {
-  const { setState } = useMyContext(); 
+  const { setState } = useMyContext();
+  const navigate = useNavigate(); 
 
   const [employees, setEmployees] = useState([]);
   const [formData, setFormData] = useState({
@@ -109,8 +113,10 @@ const ManageEmployees = () => {
     setFormData(employee);
   };
 
-  const handleBackToHome = () => {
-    setState('Logged in');
+  const handleLogout = () => {
+    setState('Logged out');
+    localStorage.removeItem('token');
+    navigate('/login');
   };
 
   const handleDeleteEmployee = async () => {
@@ -160,6 +166,10 @@ const ManageEmployees = () => {
         <h1>Manage Employees</h1>
         <div className="underline"></div>
       </div>
+
+      <button className="logout" onClick={handleLogout}>
+        <img src={lock_icon} alt="Lock" />
+      </button>
 
       {error && <div className="error-message">{error}</div>}
       {loading && <div className="loading-message">Loading...</div>}

@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../Inventory/Inventory.css'; // Correct path to the CSS file
+import '../Inventory/Inventory.css'; 
+import '../VideoShoppeUIStyleSheets/GenericStyle.css';
 import { useMyContext } from '../NavigationManager/NavigationManager.jsx';
+import { useNavigate } from 'react-router-dom';
+import lock_icon from '../Assets/lock_icon.svg'; // Assuming you want to use the same lock icon
 
 const Inventory = () => {
   const { setState } = useMyContext();
+  const navigate = useNavigate();
 
   const [dvds, setDvds] = useState([]);
   const [formData, setFormData] = useState({
@@ -21,6 +25,8 @@ const Inventory = () => {
   const [error, setError] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchBy, setSearchBy] = useState('genre'); // Default search by genre
 
   const backendUrl = 'http://localhost:5001'; // Ensure your backend is running at this URL
 
@@ -56,6 +62,22 @@ const Inventory = () => {
       [name]: type === 'checkbox' ? checked : value,
     });
   };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleSearchByChange = (e) => {
+    setSearchBy(e.target.value);
+  };
+
+  const filteredDvds = dvds.filter((dvd) => {
+    if (searchTerm === '') return true;
+    if (searchBy === 'genre' && dvd.genre.toLowerCase().includes(searchTerm.toLowerCase())) return true;
+    if (searchBy === 'director' && dvd.director.toLowerCase().includes(searchTerm.toLowerCase())) return true;
+    if (searchBy === 'actors' && dvd.actors.toLowerCase().includes(searchTerm.toLowerCase())) return true;
+    return false;
+  });
 
   const validateForm = () => {
     if (!formData.title || !formData.genre || !formData.director) {
@@ -166,8 +188,19 @@ const Inventory = () => {
     });
   };
 
+  const handleLogout = () => {
+    setState('Logged out');
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
   return (
     <div className="container">
+      {/* Logout Button */}
+      <button className="logout" onClick={handleLogout}>
+        <img src={lock_icon} alt="Lock" />
+      </button>
+
       <div className="header">
         <h1>Inventory Management</h1>
         <div className="underline"></div>
@@ -175,6 +208,22 @@ const Inventory = () => {
 
       {error && <div className="error-message">{error}</div>}
       {loading && <div className="loading-message">Loading...</div>}
+
+      {/* Search Section */}
+      <div className="search-section">
+        <label>Search by</label>
+        <select value={searchBy} onChange={handleSearchByChange}>
+          <option value="genre">Genre</option>
+          <option value="director">Director</option>
+          <option value="actors">Actors</option>
+        </select>
+        <input
+          type="text"
+          placeholder={`Search by ${searchBy}`}
+          value={searchTerm}
+          onChange={handleSearchChange}
+        />
+      </div>
 
       {(isCreating || formData.id) && (
         <form onSubmit={handleFormSubmit} className="form-container">
@@ -224,31 +273,31 @@ const Inventory = () => {
         </form>
       )}
 
-      {dvds.length > 0 ? (
+      {filteredDvds.length > 0 ? (
         <div className="inventory-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Genre</th>
-              <th>Director</th>
-              <th>Quantity</th>
-              <th>Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            {dvds.map((dvd) => (
-              <tr key={dvd.id} onClick={() => handleRowClick(dvd)}>
-                <td>{dvd.title}</td>
-                <td>{dvd.genre}</td>
-                <td>{dvd.director}</td>
-                <td>{dvd.quantity}</td>
-                <td>${dvd.price}</td>
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Genre</th>
+                <th>Director</th>
+                <th>Quantity</th>
+                <th>Price</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filteredDvds.map((dvd) => (
+                <tr key={dvd.id} onClick={() => handleRowClick(dvd)}>
+                  <td>{dvd.title}</td>
+                  <td>{dvd.genre}</td>
+                  <td>{dvd.director}</td>
+                  <td>{dvd.quantity}</td>
+                  <td>${dvd.price}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : (
         <p>No DVDs available in the inventory</p>
       )}

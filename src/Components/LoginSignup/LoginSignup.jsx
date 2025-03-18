@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../VideoShoppeUIStyleSheets/GenericStyle.css'
+import '../VideoShoppeUIStyleSheets/GenericStyle.css';
 import key_icon from '../Assets/key_icon.svg';
 import lock_icon from '../Assets/lock_icon.svg';
 import user_icon from '../Assets/user_icon.svg';
@@ -7,7 +7,6 @@ import { useMyContext } from '../NavigationManager/NavigationManager';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-// useStates for the components of this page
 const LoginSignup = () => {
   const [action, setAction] = useState('Log in');
   const [username, setUsername] = useState('');
@@ -16,50 +15,48 @@ const LoginSignup = () => {
   const { setState } = useMyContext();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();  // Use navigate for redirection
+  const navigate = useNavigate();
 
   const backendUrl = 'http://localhost:5001';
 
-// manages the user input fields
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      let response;
-      if (action === 'Log in') {
-        response = await axios.post(`${backendUrl}/api/login`, { username, password });
-      } else {
-        response = await axios.post(`${backendUrl}/api/register`, { username, password, adminPassword });
-      }
-
+      const endpoint = action === 'Log in' ? '/api/login' : '/api/register';
+      const payload = action === 'Log in' 
+        ? { username, password }
+        : { username, password, adminPassword };
+      
+      const response = await axios.post(`${backendUrl}${endpoint}`, payload, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
       if (response.data.success) {
-        // Store token in localStorage after successful login
         if (action === 'Log in') {
-          localStorage.setItem('token', response.data.token);  // Store the token
+          localStorage.setItem('token', response.data.token);
         }
         setState('Logged in');
-        navigate('/home');  // Redirect to the home page
+        navigate('/home');
       } else {
-        setError(response.data.message);
+        setError(response.data.message || 'Login failed.');
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError(err.response?.data?.message || 'An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-// HTML returned by react 
   return (
-    // "container" surrounds the header, buttons, input fields
-    <div className="container"> 
+    <div className="container">
       <div className="header">
         <div className="text">{action}</div>
         <div className="underline"></div>
       </div>
-    
+      
       <form className="inputs" onSubmit={handleSubmit}>
         <div className="input">
           <img src={user_icon} alt="username icon" />
@@ -70,7 +67,6 @@ const LoginSignup = () => {
             onChange={(e) => setUsername(e.target.value)}
           />
         </div>
-
         <div className="input">
           <img src={lock_icon} alt="lock icon" />
           <input
@@ -80,7 +76,6 @@ const LoginSignup = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-
         {action === 'Register Employee' && (
           <div className="input">
             <img src={key_icon} alt="key icon" />
@@ -92,14 +87,11 @@ const LoginSignup = () => {
             />
           </div>
         )}
-
         {error && <div className="error-message">{error}</div>}
-
         <div className="submit-container">
           <button type="submit" className="submit" disabled={loading}>
             {loading ? 'Processing...' : action}
           </button>
-
           <div
             className="switch-btn"
             onClick={() => setAction(action === 'Log in' ? 'Register Employee' : 'Log in')}
