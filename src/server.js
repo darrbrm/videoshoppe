@@ -180,10 +180,8 @@ app.delete('/api/employees/:id', authenticateToken, async (req, res) => {
 
 // **Get all DVDs** (secured route)
 app.get('/api/dvds', authenticateToken, async (req, res) => {
-  console.log('Received request to /api/dvds'); // Log request
   try {
     const [dvds] = await db.query('SELECT * FROM DVD');
-    console.log('Fetched DVDs:', dvds); // Log result
     res.status(200).json({ success: true, dvds });
   } catch (err) {
     console.error('Error fetching DVDs:', err);
@@ -288,6 +286,89 @@ app.get('/api/customers/search', async (req, res) => {
   } catch (err) {
     console.error('Error retrieving customer:', err);
     res.status(500).json({ message: 'Error retrieving customer' });
+  }
+});
+
+// **Create a new customer** (route to be added to the existing server.js file)
+app.post('/api/customers/create', authenticateToken, async (req, res) => {
+  const { 
+    first_name, 
+    last_name, 
+    birthdate, 
+    credit_card_number, 
+    credit_card_expiry, 
+    credit_card_cvc, 
+    home_address, 
+    phone_number 
+  } = req.body;
+
+  // Validate required fields
+  if (!first_name || !last_name) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'First name and last name are required' 
+    });
+  }
+
+  try {
+    // Prepare the query with all possible fields
+    const query = `
+      INSERT INTO CUSTOMER (
+        first_name, 
+        last_name, 
+        birthdate, 
+        credit_card_number, 
+        credit_card_expiry, 
+        credit_card_cvc, 
+        home_address, 
+        phone_number,
+        outstanding_rentals,
+        due_dates
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    // Default values for optional fields
+    const [result] = await db.query(query, [
+      first_name,
+      last_name,
+      birthdate || null,  // Optional
+      credit_card_number || null,  // Optional
+      credit_card_expiry || null,  // Optional
+      credit_card_cvc || null,  // Optional
+      home_address || null,  // Optional
+      phone_number || null,  // Optional
+      0,  // Default outstanding_rentals to 0
+      null  // Default due_dates to null
+    ]);
+
+    // Retrieve the newly created customer
+    const [newCustomer] = await db.query(
+      'SELECT * FROM CUSTOMER WHERE customer_id = ?', 
+      [result.insertId]
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'Customer created successfully',
+      customer: newCustomer[0]
+    });
+  } catch (err) {
+    console.error('Error creating customer:', err);
+
+    // Handle specific error scenarios
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'A customer with similar details already exists' 
+      });
+    }
+
+    // Generic error response
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error creating customer',
+      error: err.message 
+    });
   }
 });
 
