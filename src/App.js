@@ -11,24 +11,11 @@ import ReturnDVD from './Components/ReturnDVD/ReturnDVD.jsx';
 import TrackRental from './Components/TrackRental/TrackRental.jsx';
 import { NavigationManager, useMyContext } from './Components/NavigationManager/NavigationManager.jsx';
 
-// Component to handle redirects based on authentication state
-const AuthHandler = () => {
-  const { state } = useMyContext();
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (state === 'Logged out') {
-      navigate('/login');
-    } else if (state === 'Logged in') {
-      navigate('/home');
-    }
-  }, [state, navigate]);
-
-  return null; // This component only handles redirection
-};
 
 function App() {
   return (
+    
     <NavigationManager>
       <Routes>
         <Route path="/login" element={<LoginSignup />} />
@@ -42,6 +29,7 @@ function App() {
         <Route path="*" element={<Navigate to="/login" />} /> {/* Redirect unknown routes */}
       </Routes>
     </NavigationManager>
+    
   );
 }
 

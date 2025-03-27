@@ -74,7 +74,7 @@ app.post('/api/login', async (req, res) => {
 
     // Create a JWT token
     const token = jwt.sign(
-      { id: employee.id, username: employee.username },
+      { id: employee.id, username: employee.usernamesp, isAdmin: employee.isAdmin },
       JWT_SECRET,
       { expiresIn: '1h' }
     );
@@ -117,7 +117,7 @@ app.post('/api/register', async (req, res) => {
 app.get('/api/employees', authenticateToken, async (req, res) => {
   try {
     const [employees] = await db.query(
-      'SELECT id, name, address, phone_number, full_time, hours_worked FROM Employee'
+      'SELECT id, name, address, phone_number, full_time, hours_worked, isAdmin FROM Employee'
     );
     res.status(200).json({ success: true, employees });
   } catch (err) {

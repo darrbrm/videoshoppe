@@ -17,6 +17,7 @@ const LoginSignup = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+
   const backendUrl = 'http://localhost:5001';
 
   const handleSubmit = async (e) => {
