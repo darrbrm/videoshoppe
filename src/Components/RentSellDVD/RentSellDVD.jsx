@@ -79,49 +79,66 @@ const RentSellDVD = () => {
         }));
     };
 
-    // Submit new customer form
-    const handleCreateCustomer = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError('');
+   // Submit new customer form
+const handleCreateCustomer = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
     
-        // Retrieve the token from localStorage
-        const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
     
-        try {
-            const response = await axios.post(
-                `${backendUrl}/api/customers/create`, 
-                newCustomer,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
+    try {
+        const response = await axios.post(
+            `${backendUrl}/api/customers/create`, 
+            newCustomer,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
-            );
-            
-            // Reset form and hide it
-            setNewCustomer({
-                first_name: '',
-                last_name: '',
-                birthdate: '',
-                credit_card_number: '',
-                credit_card_expiry: '',
-                credit_card_cvc: '',
-                home_address: '',
-                phone_number: ''
-            });
-            setShowCreateForm(false);
-    
-            // Optionally, you might want to show a success message or automatically search for the new customer
-            setSearchTerm(`${newCustomer.first_name} ${newCustomer.last_name}`);
-        } catch (err) {
-            console.error('Error creating customer:', err);
-            setError('Failed to create customer. Please check your inputs.');
-        } finally {
-            setLoading(false);
+            }
+        );
+        
+        // If the response includes the newly created customer, use it directly
+        if (response.data.customer) {
+            setCustomer(response.data.customer);
+        } else {
+            // If not, search for the customer with a slightly longer delay
+            setTimeout(() => {
+                axios.get(`${backendUrl}/api/customers/search`, {
+                    params: { name: `${newCustomer.first_name}` } // Using just first name for broader search
+                })
+                .then(response => {
+                    if (response.data.customer) {
+                        setCustomer(response.data.customer);
+                    }
+                })
+                .catch(err => {
+                    console.error('Delayed search error:', err);
+                });
+            }, 1000); // Increased to 1000ms delay
         }
-    };
+        
+        // Reset form
+        setNewCustomer({
+            first_name: '',
+            last_name: '',
+            birthdate: '',
+            credit_card_number: '',
+            credit_card_expiry: '',
+            credit_card_cvc: '',
+            home_address: '',
+            phone_number: ''
+        });
+        setShowCreateForm(false);
+        
+    } catch (err) {
+        console.error('Error creating customer:', err);
+        setError('Failed to create customer. Please check your inputs.');
+    } finally {
+        setLoading(false);
+    }
+};
 
     return (
         <div className="container">
