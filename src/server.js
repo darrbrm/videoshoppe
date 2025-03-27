@@ -180,10 +180,8 @@ app.delete('/api/employees/:id', authenticateToken, async (req, res) => {
 
 // **Get all DVDs** (secured route)
 app.get('/api/dvds', authenticateToken, async (req, res) => {
-  console.log('Received request to /api/dvds'); // Log request
   try {
     const [dvds] = await db.query('SELECT * FROM DVD');
-    console.log('Fetched DVDs:', dvds); // Log result
     res.status(200).json({ success: true, dvds });
   } catch (err) {
     console.error('Error fetching DVDs:', err);
@@ -264,23 +262,38 @@ app.delete('/api/dvds/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// **Querying customer data** and handling `due_dates`
+// **Customer Search Route**
 app.get('/api/customers/search', async (req, res) => {
-  const { name } = req.query; // Get the search name
+  const { name } = req.query;
   
   if (!name) {
     return res.status(400).json({ message: 'Name query parameter is required' });
   }
 
-  // Query the database to find a matching customer (case insensitive)
-  const query = `SELECT * FROM CUSTOMER WHERE LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ?`;
+  const query = `SELECT * FROM Customer WHERE LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ?`;
   try {
     const [result] = await db.execute(query, [`%${name.toLowerCase()}%`, `%${name.toLowerCase()}%`]);
     
     if (result.length > 0) {
       const customer = result[0];
-      // Ensure `due_dates` is an array (if stored as a comma-separated string in DB)
-      customer.due_dates = customer.due_dates ? customer.due_dates.split(',') : [];
+      
+      // Clean up birthdate if it exists
+      if (customer.birthdate) {
+        customer.birthdate = customer.birthdate instanceof Date 
+          ? customer.birthdate.toISOString().split('T')[0]  
+          : new Date(customer.birthdate).toISOString().split('T')[0];
+      }
+
+      // Ensure `due_dates` is a clean array without quotes or brackets
+      if (customer.due_dates) {
+        customer.due_dates = customer.due_dates
+          .replace(/[\[\]']+/g, '')  // Remove brackets and quotes
+          .split(',')
+          .map(date => date.trim().split('T')[0]);
+      } else {
+        customer.due_dates = [];
+      }
+      
       res.json({ customer });
     } else {
       res.status(404).json({ message: 'Customer not found' });
@@ -288,6 +301,105 @@ app.get('/api/customers/search', async (req, res) => {
   } catch (err) {
     console.error('Error retrieving customer:', err);
     res.status(500).json({ message: 'Error retrieving customer' });
+  }
+});
+
+// **Customer Create Route**
+app.post('/api/customers/create', authenticateToken, async (req, res) => {
+  const { 
+    first_name, 
+    last_name, 
+    birthdate, 
+    credit_card_number, 
+    credit_card_expiry, 
+    credit_card_cvc, 
+    home_address, 
+    phone_number 
+  } = req.body;
+
+  // Validate required fields
+  if (!first_name || !last_name) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'First name and last name are required' 
+    });
+  }
+
+  try {
+    // If birthdate is provided, ensure it's in YYYY-MM-DD format
+    const formattedBirthdate = birthdate 
+      ? new Date(birthdate).toISOString().split('T')[0] 
+      : null;
+
+    const query = `
+      INSERT INTO Customer (
+        first_name, 
+        last_name, 
+        birthdate, 
+        credit_card_number, 
+        credit_card_expiry, 
+        credit_card_cvc, 
+        home_address, 
+        phone_number,
+        outstanding_rentals,
+        due_dates
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const [result] = await db.query(query, [
+      first_name,
+      last_name,
+      formattedBirthdate,  // Use formatted date
+      credit_card_number || null,
+      credit_card_expiry || null,
+      credit_card_cvc || null,
+      home_address || null,
+      phone_number || null,
+      0,
+      null
+    ]);
+
+    // Retrieve the newly created customer
+    const [newCustomer] = await db.query(
+      'SELECT * FROM Customer WHERE customer_id = ?', 
+      [result.insertId]
+    );
+
+    // Clean up birthdate in the response
+    if (newCustomer[0].birthdate) {
+      newCustomer[0].birthdate = new Date(newCustomer[0].birthdate).toISOString().split('T')[0];
+    }
+
+    // Clean up due_dates completely
+    if (newCustomer[0].due_dates) {
+      newCustomer[0].due_dates = newCustomer[0].due_dates
+        .replace(/[\[\]']+/g, '')  // Remove brackets and quotes
+        .split(',')
+        .map(date => date.trim().split('T')[0]);
+    } else {
+      newCustomer[0].due_dates = [];
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Customer created successfully',
+      customer: newCustomer[0]
+    });
+  } catch (err) {
+    console.error('Error creating customer:', err);
+
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'A customer with similar details already exists' 
+      });
+    }
+
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error creating customer',
+      error: err.message 
+    });
   }
 });
 
