@@ -509,3 +509,21 @@ tr:hover {
         flex-direction: column;
     }
 }
+
+.age-restriction-note {
+    color: #d9534f;
+    font-style: italic;
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 5px;
+    border-left: 3px solid #d9534f;
+    background-color: #f9f2f2;
+}
+
+/* Styling for disabled buttons */
+.transaction-type-btn:disabled {
+    background-color: #f0f0f0;
+    color: #888;
+    border-color: #ccc;
+    cursor: not-allowed;
+}

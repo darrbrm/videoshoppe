@@ -217,8 +217,21 @@ const RentSellDVD = () => {
     // Handle selecting a DVD from inventory
     const handleSelectDvd = (dvd) => {
         setSelectedDvd(dvd);
+        
+        // Calculate if the DVD is over a year old
+        const currentYear = new Date().getFullYear();
+        const isOverOneYearOld = dvd.release_year && (currentYear - dvd.release_year > 1);
+        
+        // If it's over a year old, automatically set transaction type to 'sell'
+        if (isOverOneYearOld) {
+          setTransactionType('sell');
+        } else {
+          // Reset transaction type if selecting a different DVD
+          setTransactionType('');
+        }
+        
         setTransactionStep('transaction-details');
-    };
+      };
 
     // Process the transaction (rent or sell)
     const handleProcessTransaction = async () => {
@@ -574,70 +587,79 @@ const RentSellDVD = () => {
                 </div>
             )}
 
-            {/* Transaction Details Step */}
-            {transactionStep === 'transaction-details' && selectedDvd && (
-                <div className="transaction-details-section">
-                    <button className="back-button" onClick={handleBack}>
-                        &larr; Back to DVD Selection
+{/* Transaction Details Step */}
+{transactionStep === 'transaction-details' && selectedDvd && (
+    <div className="transaction-details-section">
+        <button className="back-button" onClick={handleBack}>
+            &larr; Back to DVD Selection
+        </button>
+        
+        <h3>Transaction Details</h3>
+        
+        <div className="transaction-info">
+            <div className="customer-summary">
+                <h4>Customer</h4>
+                <p>{customer.first_name} {customer.last_name}</p>
+                <p>{customer.phone_number || 'No phone'}</p>
+            </div>
+            
+            <div className="dvd-summary">
+                <h4>Selected DVD</h4>
+                <p><strong>Title:</strong> {selectedDvd.title}</p>
+                <p><strong>Genre:</strong> {selectedDvd.genre}</p>
+                <p><strong>Release Year:</strong> {selectedDvd.release_year}</p>
+                <p><strong>Price:</strong> ${selectedDvd.price}</p>
+                
+                {/* Show a note if the DVD is over a year old */}
+                {selectedDvd.release_year && (new Date().getFullYear() - selectedDvd.release_year > 1) && (
+                    <p className="age-restriction-note">
+                        * This DVD is over a year old and can only be sold, not rented.
+                    </p>
+                )}
+            </div>
+            
+            <div className="transaction-type">
+                <h4>Transaction Type</h4>
+                <div className="transaction-buttons">
+                    <button 
+                        className={`transaction-type-btn ${transactionType === 'rent' ? 'selected' : ''}`}
+                        onClick={() => setTransactionType('rent')}
+                        disabled={selectedDvd.release_year && (new Date().getFullYear() - selectedDvd.release_year > 1)}
+                    >
+                        Rent
                     </button>
-                    
-                    <h3>Transaction Details</h3>
-                    
-                    <div className="transaction-info">
-                        <div className="customer-summary">
-                            <h4>Customer</h4>
-                            <p>{customer.first_name} {customer.last_name}</p>
-                            <p>{customer.phone_number || 'No phone'}</p>
-                        </div>
-                        
-                        <div className="dvd-summary">
-                            <h4>Selected DVD</h4>
-                            <p><strong>Title:</strong> {selectedDvd.title}</p>
-                            <p><strong>Genre:</strong> {selectedDvd.genre}</p>
-                            <p><strong>Price:</strong> ${selectedDvd.price}</p>
-                        </div>
-                        
-                        <div className="transaction-type">
-                            <h4>Transaction Type</h4>
-                            <div className="transaction-buttons">
-                                <button 
-                                    className={`transaction-type-btn ${transactionType === 'rent' ? 'selected' : ''}`}
-                                    onClick={() => setTransactionType('rent')}
-                                >
-                                    Rent
-                                </button>
-                                <button 
-                                    className={`transaction-type-btn ${transactionType === 'sell' ? 'selected' : ''}`}
-                                    onClick={() => setTransactionType('sell')}
-                                >
-                                    Sell
-                                </button>
-                            </div>
-                        </div>
-                        
-                        {transactionType === 'rent' && (
-                            <div className="due-date-section">
-                                <h4>Due Date</h4>
-                                <input 
-                                    type="date" 
-                                    min={getMinDueDate()} 
-                                    value={dueDate}
-                                    onChange={(e) => setDueDate(e.target.value)}
-                                />
-                                <p className="note">* Items are due back by closing time on the date selected</p>
-                            </div>
-                        )}
-                        
-                        <button 
-                            className="process-transaction-btn"
-                            onClick={handleProcessTransaction}
-                            disabled={!transactionType || (transactionType === 'rent' && !dueDate)}
-                        >
-                            Complete Transaction
-                        </button>
-                    </div>
+                    <button 
+                        className={`transaction-type-btn ${transactionType === 'sell' ? 'selected' : ''}`}
+                        onClick={() => setTransactionType('sell')}
+                    >
+                        Sell
+                    </button>
+                </div>
+            </div>
+            
+            {transactionType === 'rent' && (
+                <div className="due-date-section">
+                    <h4>Due Date</h4>
+                    <input 
+                        type="date" 
+                        min={getMinDueDate()} 
+                        value={dueDate}
+                        onChange={(e) => setDueDate(e.target.value)}
+                    />
+                    <p className="note">* Items are due back by closing time on the date selected</p>
                 </div>
             )}
+            
+            <button 
+                className="process-transaction-btn"
+                onClick={handleProcessTransaction}
+                disabled={!transactionType || (transactionType === 'rent' && !dueDate)}
+            >
+                Complete Transaction
+            </button>
+        </div>
+    </div>
+)}
 
             {/* Transaction Complete Step */}
             {transactionStep === 'transaction-complete' && transactionComplete && (
