@@ -403,6 +403,55 @@ app.post('/api/customers/create', authenticateToken, async (req, res) => {
   }
 });
 
+app.get('/api/alert', authenticateToken, async (req, res) => {
+  try {
+    const [alerts] = await db.query('SELECT * FROM Alert ORDER BY created_at DESC');
+    res.status(200).json({ success: true, alerts });
+  } catch (err) {
+    console.error('Error fetching alerts:', err);
+    res.status(500).json({ success: false, message: 'Server error fetching alerts' });
+  }
+});
+
+app.post('/api/alert', authenticateToken, async (req, res) => {
+  const { message, alert_type } = req.body;
+
+  if (!message || !['DVD Available', 'Credit Card Invalid', 'Overdue Late Fees', 'Other'].includes(alert_type)) {
+    return res.status(400).json({ success: false, message: 'Invalid alert data' });
+  }
+
+  try {
+    await db.query('INSERT INTO Alert (message, alert_type) VALUES (?, ?)', [message, alert_type]);
+    res.status(201).json({ success: true, message: 'Alert created successfully' });
+  } catch (err) {
+    console.error('Error creating alert:', err);
+    res.status(500).json({ success: false, message: 'Server error creating alert' });
+  }
+});
+
+app.delete('/api/alert/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await db.query('DELETE FROM Alert WHERE id = ?', [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Alert not found' });
+    }
+
+    res.status(200).json({ success: true, message: 'Alert deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting alert:', err);
+    res.status(500).json({ success: false, message: 'Server error deleting alert' });
+  }
+});
+
+
+
+
+
+
+
 // Start the server
 const port = process.env.PORT || 5001;
 app.listen(port, () => {
