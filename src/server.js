@@ -74,7 +74,7 @@ app.post('/api/login', async (req, res) => {
 
     // Create a JWT token
     const token = jwt.sign(
-      { id: employee.id, username: employee.usernamesp, isAdmin: employee.isAdmin },
+      { id: employee.id, username: employee.username, isAdmin: employee.isAdmin },
       JWT_SECRET,
       { expiresIn: '1h' }
     );
@@ -403,48 +403,107 @@ app.post('/api/customers/create', authenticateToken, async (req, res) => {
   }
 });
 
+// Get all alerts (secured route)
 app.get('/api/alert', authenticateToken, async (req, res) => {
   try {
     const [alerts] = await db.query('SELECT * FROM Alert ORDER BY created_at DESC');
-    res.status(200).json({ success: true, alerts });
+
+    res.status(200).json({ 
+      success: true, 
+      alerts 
+    });
   } catch (err) {
-    console.error('Error fetching alerts:', err);
-    res.status(500).json({ success: false, message: 'Server error fetching alerts' });
+    console.error('Error fetching alerts:', {
+      message: err.message,
+      stack: err.stack
+    });
+
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error fetching alerts' 
+    });
   }
 });
 
+// Create a new alert (secured route)
 app.post('/api/alert', authenticateToken, async (req, res) => {
   const { message, alert_type } = req.body;
+  console.log('POST /alerts called');
+  console.log('Request body:', req.body);
 
-  if (!message || !['DVD Available', 'Credit Card Invalid', 'Overdue Late Fees', 'Other'].includes(alert_type)) {
-    return res.status(400).json({ success: false, message: 'Invalid alert data' });
+
+  const validAlertTypes = ['DVD Available', 'Credit Card Invalid', 'Overdue Late Fees', 'Other'];
+
+  if (!message || !alert_type || !validAlertTypes.includes(alert_type)) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Invalid alert data: message and a valid alert_type are required' 
+    });
   }
 
   try {
-    await db.query('INSERT INTO Alert (message, alert_type) VALUES (?, ?)', [message, alert_type]);
-    res.status(201).json({ success: true, message: 'Alert created successfully' });
+    const [result] = await db.query(
+      'INSERT INTO Alert (message, alert_type) VALUES (?, ?)', 
+      [message, alert_type]
+    );
+
+    res.status(201).json({ 
+      success: true, 
+      message: 'Alert created successfully',
+      alertId: result.insertId 
+    });
   } catch (err) {
-    console.error('Error creating alert:', err);
-    res.status(500).json({ success: false, message: 'Server error creating alert' });
+    console.error('Error creating alert:', {
+      message: err.message,
+      stack: err.stack,
+      data: req.body
+    });
+
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error creating alert' 
+    });
   }
 });
 
+// Delete an alert by ID (secured route)
 app.delete('/api/alert/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
+
+  if (!id || isNaN(parseInt(id))) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Invalid alert ID' 
+    });
+  }
 
   try {
     const [result] = await db.query('DELETE FROM Alert WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ success: false, message: 'Alert not found' });
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Alert not found' 
+      });
     }
 
-    res.status(200).json({ success: true, message: 'Alert deleted successfully' });
+    res.status(200).json({ 
+      success: true, 
+      message: 'Alert deleted successfully' 
+    });
   } catch (err) {
-    console.error('Error deleting alert:', err);
-    res.status(500).json({ success: false, message: 'Server error deleting alert' });
+    console.error('Error deleting alert:', {
+      message: err.message,
+      stack: err.stack
+    });
+
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error deleting alert' 
+    });
   }
 });
+
 
 
 

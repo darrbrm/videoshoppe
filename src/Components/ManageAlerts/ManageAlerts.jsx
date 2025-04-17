@@ -9,7 +9,7 @@ const ManageAlerts = () => {
   const { setState } = useMyContext();
   const navigate = useNavigate();
   const [alerts, setAlerts] = useState([]);
-  const [formData, setFormData] = useState({ message: '', alert_type: 'info' });
+  const [formData, setFormData] = useState({ message: '', alert_type: 'DVD Available' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -58,7 +58,7 @@ const ManageAlerts = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAlerts(response.data.alerts || []);
-      setFormData({ message: '', alert_type: 'info' });
+      setFormData({ message: '', alert_type: 'DVD Available' }); 
     } catch (err) {
       setError('Error saving alert: ' + (err.response?.data?.message || err.message || 'Unknown error'));
     }
