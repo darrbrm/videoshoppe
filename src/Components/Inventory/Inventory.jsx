@@ -200,6 +200,10 @@ const Inventory = () => {
       <button className="logout" onClick={handleLogout}>
         <img src={lock_icon} alt="Lock" />
       </button>
+      <button className="back-button" onClick={() => navigate('/home')}>
+          Back
+     </button>
+
 
       <div className="header">
         <h1>Inventory Management</h1>

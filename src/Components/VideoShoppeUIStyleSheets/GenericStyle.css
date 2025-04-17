@@ -135,3 +135,23 @@
     border-color: #505050; /* Darker border on hover */
     color: #7a7a7a; /* Slightly darker text on hover */
 }
+
+.back-button {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background-color: #1e40af;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 1000;
+    transition: background-color 0.3s ease;
+  }
+  
+  .back-button:hover {
+    background-color: #1d4ed8;
+  }
+  

@@ -91,6 +91,9 @@ const ManageAlerts = () => {
       <button className="logout" onClick={handleLogout}>
         <img src={lock_icon} alt="Lock" />
       </button>
+      <button className="back-button" onClick={() => navigate('/home')}>
+          Back
+     </button>
       <div className="header">
         <h1>Manage Alerts</h1>
         <div className="underline"></div>

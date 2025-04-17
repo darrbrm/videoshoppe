@@ -171,6 +171,10 @@ const ManageEmployees = () => {
         <img src={lock_icon} alt="Lock" />
       </button>
 
+      <button className="back-button" onClick={() => navigate('/home')}>
+          Back
+     </button>
+
       {error && <div className="error-message">{error}</div>}
       {loading && <div className="loading-message">Loading...</div>}
 

@@ -16,7 +16,7 @@ const db = mysql.createPool({
   host: 'localhost',
   user: 'root',
   password: process.env.DB_PASSWORD || 'password', // Ensure the DB password is in your .env file
-  database: 'video_shoppe',
+  database: 'videoshoppe',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -428,8 +428,6 @@ app.get('/api/alert', authenticateToken, async (req, res) => {
 // Create a new alert (secured route)
 app.post('/api/alert', authenticateToken, async (req, res) => {
   const { message, alert_type } = req.body;
-  console.log('POST /alerts called');
-  console.log('Request body:', req.body);
 
 
   const validAlertTypes = ['DVD Available', 'Credit Card Invalid', 'Overdue Late Fees', 'Other'];

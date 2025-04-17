@@ -15,6 +15,7 @@ const ReturnDVD = () => {
                 <img src = {lock_icon} alt = 'Lock'></img>
                 
             </button>
+            
             <div className = 'header'>
                 <div className = 'text'>Return DVD</div>
                 <div className = 'underline'></div>
