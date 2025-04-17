@@ -25,7 +25,7 @@ const ManageAlerts = () => {
         return;
       }
       try {
-        const response = await axios.get(`${backendUrl}/api/alerts`, {
+        const response = await axios.get(`${backendUrl}/api/alert`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setAlerts(response.data.alerts || []);
@@ -51,10 +51,10 @@ const ManageAlerts = () => {
       return;
     }
     try {
-      await axios.post(`${backendUrl}/api/alerts`, formData, {
+      await axios.post(`${backendUrl}/api/alert`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const response = await axios.get(`${backendUrl}/api/alerts`, {
+      const response = await axios.get(`${backendUrl}/api/alert`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAlerts(response.data.alerts || []);
@@ -71,7 +71,7 @@ const ManageAlerts = () => {
       return;
     }
     try {
-      await axios.delete(`${backendUrl}/api/alerts/${id}`, {
+      await axios.delete(`${backendUrl}/api/alert/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAlerts(alerts.filter(alert => alert.id !== id));
