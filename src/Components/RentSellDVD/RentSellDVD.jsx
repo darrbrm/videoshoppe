@@ -249,9 +249,6 @@ const RentSellDVD = () => {
         const token = localStorage.getItem('token');
         
         try {
-            // In a production app, you would make an API call here to update the DVD inventory
-            // and customer records. For this learning project, we'll simulate the update.
-            
             // Update DVD inventory (decrement quantity)
             const updatedDvd = {
                 ...selectedDvd,
@@ -265,14 +262,87 @@ const RentSellDVD = () => {
             
             // For rentals, update customer's outstanding_rentals and due_dates
             if (transactionType === 'rent') {
-                // This is placeholder code - your backend would need an API to update customer rental info
-                // For a real implementation you would add a PUT endpoint to update customer records
+                // Get the latest customer data to ensure we have the most current values
+                const customerResponse = await axios.get(`${backendUrl}/api/customers/${customer.customer_id}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                
+                const currentCustomer = customerResponse.data.customer;
+                
+                // Calculate new outstanding_rentals value
+                const newOutstandingRentals = (currentCustomer.outstanding_rentals || 0) + 1;
+                
+                // Handle due_dates array
+                let dueDatesArray = [];
+                
+                // Parse existing due_dates if any
+                if (currentCustomer.due_dates) {
+                    // Handle JSON string case
+                    if (typeof currentCustomer.due_dates === 'string') {
+                        try {
+                            dueDatesArray = JSON.parse(currentCustomer.due_dates);
+                        } catch (e) {
+                            // If it's not valid JSON but is a string, treat it as a single date
+                            dueDatesArray = [currentCustomer.due_dates];
+                        }
+                    } else if (Array.isArray(currentCustomer.due_dates)) {
+                        // Already an array, clone it
+                        dueDatesArray = [...currentCustomer.due_dates];
+                    }
+                }
+                
+                // Add new due date
+                dueDatesArray.push(dueDate);
+                
+                // Create updated customer object
+                const updatedCustomer = {
+                    ...currentCustomer,
+                    outstanding_rentals: newOutstandingRentals,
+                    due_dates: JSON.stringify(dueDatesArray)
+                };
+                
+                // Update customer in database
+                await axios.put(`${backendUrl}/api/customers/${customer.customer_id}`, updatedCustomer, {
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                // Create a new rental record for tracking
+                const rentalRecord = {
+                    customer_id: customer.customer_id,
+                    dvd_id: selectedDvd.id,
+                    rental_date: new Date().toISOString().split('T')[0],
+                    due_date: dueDate,
+                    return_date: null,
+                    status: 'out',
+                    title: selectedDvd.title, // Store title for easier lookup
+                    customer_name: `${customer.first_name} ${customer.last_name}` // Store name for easier lookup
+                };
+                
+                // Save the rental record to database
+                await axios.post(`${backendUrl}/api/rentals`, rentalRecord, {
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                // Update local customer state to reflect changes
+                setCustomer({
+                    ...customer,
+                    outstanding_rentals: newOutstandingRentals,
+                    due_dates: dueDatesArray
+                });
+                
                 console.log('Rental transaction processed', {
                     customerId: customer.customer_id,
                     dvdId: selectedDvd.id,
                     dueDate
                 });
             } else {
+                // For sales, just log the transaction
                 console.log('Sale transaction processed', {
                     customerId: customer.customer_id,
                     dvdId: selectedDvd.id
@@ -591,79 +661,79 @@ const RentSellDVD = () => {
                 </div>
             )}
 
-{/* Transaction Details Step */}
-{transactionStep === 'transaction-details' && selectedDvd && (
-    <div className="transaction-details-section">
-        <button className="back-button" onClick={handleBack}>
-            &larr; Back to DVD Selection
-        </button>
-        
-        <h3>Transaction Details</h3>
-        
-        <div className="transaction-info">
-            <div className="customer-summary">
-                <h4>Customer</h4>
-                <p>{customer.first_name} {customer.last_name}</p>
-                <p>{customer.phone_number || 'No phone'}</p>
-            </div>
-            
-            <div className="dvd-summary">
-                <h4>Selected DVD</h4>
-                <p><strong>Title:</strong> {selectedDvd.title}</p>
-                <p><strong>Genre:</strong> {selectedDvd.genre}</p>
-                <p><strong>Release Year:</strong> {selectedDvd.release_year}</p>
-                <p><strong>Price:</strong> ${selectedDvd.price}</p>
-                
-                {/* Show a note if the DVD is over a year old */}
-                {selectedDvd.release_year && (new Date().getFullYear() - selectedDvd.release_year > 1) && (
-                    <p className="age-restriction-note">
-                        * This DVD is over a year old and can only be sold, not rented.
-                    </p>
-                )}
-            </div>
-            
-            <div className="transaction-type">
-                <h4>Transaction Type</h4>
-                <div className="transaction-buttons">
-                    <button 
-                        className={`transaction-type-btn ${transactionType === 'rent' ? 'selected' : ''}`}
-                        onClick={() => setTransactionType('rent')}
-                        disabled={selectedDvd.release_year && (new Date().getFullYear() - selectedDvd.release_year > 1)}
-                    >
-                        Rent
+            {/* Transaction Details Step */}
+            {transactionStep === 'transaction-details' && selectedDvd && (
+                <div className="transaction-details-section">
+                    <button className="back-button" onClick={handleBack}>
+                        &larr; Back to DVD Selection
                     </button>
-                    <button 
-                        className={`transaction-type-btn ${transactionType === 'sell' ? 'selected' : ''}`}
-                        onClick={() => setTransactionType('sell')}
-                    >
-                        Sell
-                    </button>
-                </div>
-            </div>
-            
-            {transactionType === 'rent' && (
-                <div className="due-date-section">
-                    <h4>Due Date</h4>
-                    <input 
-                        type="date" 
-                        min={getMinDueDate()} 
-                        value={dueDate}
-                        onChange={(e) => setDueDate(e.target.value)}
-                    />
-                    <p className="note">* Items are due back by closing time on the date selected</p>
+                    
+                    <h3>Transaction Details</h3>
+                    
+                    <div className="transaction-info">
+                        <div className="customer-summary">
+                            <h4>Customer</h4>
+                            <p>{customer.first_name} {customer.last_name}</p>
+                            <p>{customer.phone_number || 'No phone'}</p>
+                        </div>
+                        
+                        <div className="dvd-summary">
+                            <h4>Selected DVD</h4>
+                            <p><strong>Title:</strong> {selectedDvd.title}</p>
+                            <p><strong>Genre:</strong> {selectedDvd.genre}</p>
+                            <p><strong>Release Year:</strong> {selectedDvd.release_year}</p>
+                            <p><strong>Price:</strong> ${selectedDvd.price}</p>
+                            
+                            {/* Show a note if the DVD is over a year old */}
+                            {selectedDvd.release_year && (new Date().getFullYear() - selectedDvd.release_year > 1) && (
+                                <p className="age-restriction-note">
+                                    * This DVD is over a year old and can only be sold, not rented.
+                                </p>
+                            )}
+                        </div>
+                        
+                        <div className="transaction-type">
+                            <h4>Transaction Type</h4>
+                            <div className="transaction-buttons">
+                                <button 
+                                    className={`transaction-type-btn ${transactionType === 'rent' ? 'selected' : ''}`}
+                                    onClick={() => setTransactionType('rent')}
+                                    disabled={selectedDvd.release_year && (new Date().getFullYear() - selectedDvd.release_year > 1)}
+                                >
+                                    Rent
+                                </button>
+                                <button 
+                                    className={`transaction-type-btn ${transactionType === 'sell' ? 'selected' : ''}`}
+                                    onClick={() => setTransactionType('sell')}
+                                >
+                                    Sell
+                                </button>
+                            </div>
+                        </div>
+                        
+                        {transactionType === 'rent' && (
+                            <div className="due-date-section">
+                                <h4>Due Date</h4>
+                                <input 
+                                    type="date" 
+                                    min={getMinDueDate()} 
+                                    value={dueDate}
+                                    onChange={(e) => setDueDate(e.target.value)}
+                                />
+                                <p className="note">* Items are due back by closing time on the date selected</p>
+                            </div>
+                        )}
+                        
+                        <button 
+                            className="process-transaction-btn"
+                            onClick={handleProcessTransaction}
+                            disabled={!transactionType || (transactionType === 'rent' && !dueDate)}
+                        >
+                            Complete Transaction
+                        </button>
+                    </div>
                 </div>
             )}
-            
-            <button 
-                className="process-transaction-btn"
-                onClick={handleProcessTransaction}
-                disabled={!transactionType || (transactionType === 'rent' && !dueDate)}
-            >
-                Complete Transaction
-            </button>
-        </div>
-    </div>
-)}
 
             {/* Transaction Complete Step */}
             {transactionStep === 'transaction-complete' && transactionComplete && (

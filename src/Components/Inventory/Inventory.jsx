@@ -75,7 +75,7 @@ const Inventory = () => {
     if (searchTerm === '') return true;
     if (searchBy === 'genre' && dvd.genre.toLowerCase().includes(searchTerm.toLowerCase())) return true;
     if (searchBy === 'director' && dvd.director.toLowerCase().includes(searchTerm.toLowerCase())) return true;
-    if (searchBy === 'actors' && dvd.actors.toLowerCase().includes(searchTerm.toLowerCase())) return true;
+    if (searchBy === 'actors' && dvd.actors && dvd.actors.toLowerCase().includes(searchTerm.toLowerCase())) return true;
     return false;
   });
 

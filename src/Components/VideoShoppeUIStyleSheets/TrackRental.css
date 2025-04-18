@@ -1,0 +1,292 @@
+/* TrackRental.css */
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.header .text {
+    font-size: 32px;
+    font-weight: bold;
+    color: #333;
+}
+
+.header .underline {
+    width: 50px;
+    height: 3px;
+    background-color: #000;
+    margin: 0 auto;
+}
+
+.error-message {
+    color: red;
+    text-align: center;
+    margin-top: 20px;
+    background-color: #f8d7da;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #f5c6cb;
+}
+
+.loading-message {
+    text-align: center;
+    margin-top: 20px;
+    background-color: #e2f3f5;
+    color: #0c5460;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #bee5eb;
+}
+
+/* Filters section */
+.filters-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.search-container {
+    flex: 2;
+    margin-right: 20px;
+}
+
+.search-filter-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-filter-row select {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 150px;
+    height: 40px;
+    font-size: 16px;
+}
+
+.search-filter-row input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    height: 40px;
+    font-size: 16px;
+}
+
+.status-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-filter label {
+    font-weight: bold;
+}
+
+.status-filter select {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.refresh-btn {
+    background-color: #000000;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    margin-left: 15px;
+}
+
+.refresh-btn:hover {
+    background-color: #333;
+}
+
+/* Rentals table */
+.rentals-table {
+    width: 100%;
+    margin-top: 20px;
+    overflow-x: auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Status styles */
+.status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.status.out {
+    color: #0c5460;
+    background-color: #e2f3f5;
+}
+
+.status.overdue {
+    color: #721c24;
+    background-color: #f8d7da;
+}
+
+.status.returned {
+    color: #155724;
+    background-color: #d4edda;
+}
+
+/* Row highlighting based on status */
+tr.overdue {
+    background-color: #fff3f3;
+}
+
+tr.overdue:hover {
+    background-color: #ffe6e6;
+}
+
+/* Return button */
+.return-btn {
+    background-color: #000000;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.return-btn:hover {
+    background-color: #333;
+}
+
+/* No rentals message */
+.no-rentals {
+    text-align: center;
+    padding: 30px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.no-rentals p {
+    color: #666;
+    font-size: 18px;
+}
+
+/* Back button styling */
+.back-button {
+    background-color: transparent;
+    border: 1px solid #000000;
+    color: #000000;
+    padding: 8px 15px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #f1f1f1;
+}
+
+/* Logout button styling */
+.logout {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.logout img {
+    width: 30px;
+    height: 30px;
+}
+
+/* Due date input styling */
+.due-date-section input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    text-align: center;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 300px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+    }
+    
+    .filters-section {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .search-container {
+        width: 100%;
+        margin-right: 0;
+    }
+    
+    .status-filter {
+        width: 100%;
+    }
+    
+    .refresh-btn {
+        margin-left: 0;
+    }
+}

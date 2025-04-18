@@ -104,7 +104,7 @@ app.post('/api/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert the new employee into the database
-    await db.query('INSERT INTO Employee (username, password) VALUES (?, ?)', [username, hashedPassword]);
+    await db.query('INSERT INTO employee (username, password) VALUES (?, ?)', [username, hashedPassword]);
 
     res.status(201).json({ success: true, message: 'Employee registered successfully' });
   } catch (err) {
@@ -136,7 +136,7 @@ app.post('/api/employees', authenticateToken, async (req, res) => {
 
   try {
     await db.query(
-      'INSERT INTO Employee (name, address, phone_number, full_time, hours_worked) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO employee (name, address, phone_number, full_time, hours_worked) VALUES (?, ?, ?, ?, ?)',
       [name, address, phone_number, full_time, hours_worked]
     );
 
@@ -199,7 +199,7 @@ app.post('/api/dvds', authenticateToken, async (req, res) => {
 
   try {
     const [result] = await db.query(
-      'INSERT INTO DVD (title, genre, director, actors, release_year, quantity, price, available, requested_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO dvd (title, genre, director, actors, release_year, quantity, price, available, requested_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [title, genre, director, actors, release_year, quantity, price, available ? 1 : 0, requested_count]
     );
 
@@ -286,10 +286,15 @@ app.get('/api/customers/search', async (req, res) => {
 
       // Ensure `due_dates` is a clean array without quotes or brackets
       if (customer.due_dates) {
-        customer.due_dates = customer.due_dates
-          .replace(/[\[\]']+/g, '')  // Remove brackets and quotes
-          .split(',')
-          .map(date => date.trim().split('T')[0]);
+        try {
+          // If it's already a JSON string, parse it
+          if (typeof customer.due_dates === 'string') {
+            customer.due_dates = JSON.parse(customer.due_dates);
+          }
+        } catch (e) {
+          // If parsing fails, provide an empty array
+          customer.due_dates = [];
+        }
       } else {
         customer.due_dates = [];
       }
@@ -332,7 +337,7 @@ app.post('/api/customers/create', authenticateToken, async (req, res) => {
       : null;
 
     const query = `
-      INSERT INTO Customer (
+      INSERT INTO customer (
         first_name, 
         last_name, 
         birthdate, 
@@ -372,10 +377,15 @@ app.post('/api/customers/create', authenticateToken, async (req, res) => {
 
     // Clean up due_dates completely
     if (newCustomer[0].due_dates) {
-      newCustomer[0].due_dates = newCustomer[0].due_dates
-        .replace(/[\[\]']+/g, '')  // Remove brackets and quotes
-        .split(',')
-        .map(date => date.trim().split('T')[0]);
+      try {
+        // If it's already a JSON string, parse it
+        if (typeof newCustomer[0].due_dates === 'string') {
+          newCustomer[0].due_dates = JSON.parse(newCustomer[0].due_dates);
+        }
+      } catch (e) {
+        // If parsing fails, provide an empty array
+        newCustomer[0].due_dates = [];
+      }
     } else {
       newCustomer[0].due_dates = [];
     }
@@ -441,7 +451,7 @@ app.post('/api/alert', authenticateToken, async (req, res) => {
 
   try {
     const [result] = await db.query(
-      'INSERT INTO Alert (message, alert_type) VALUES (?, ?)', 
+      'INSERT INTO alert (message, alert_type) VALUES (?, ?)', 
       [message, alert_type]
     );
 
@@ -502,12 +512,232 @@ app.delete('/api/alert/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// 1. Get customer by ID
+app.get('/api/customers/:customerId', authenticateToken, async (req, res) => {
+  try {
+    const customerId = req.params.customerId;
+    const [rows] = await db.query('SELECT * FROM Customer WHERE customer_id = ?', [customerId]);
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Customer not found' });
+    }
+    
+    const customer = rows[0];
+    
+    // Clean up birthdate if it exists
+    if (customer.birthdate) {
+      customer.birthdate = customer.birthdate instanceof Date 
+        ? customer.birthdate.toISOString().split('T')[0]  
+        : new Date(customer.birthdate).toISOString().split('T')[0];
+    }
 
+    // Ensure `due_dates` is properly formatted
+    if (customer.due_dates) {
+      try {
+        // If it's already a JSON string, parse it
+        if (typeof customer.due_dates === 'string') {
+          customer.due_dates = JSON.parse(customer.due_dates);
+        }
+      } catch (e) {
+        // If parsing fails, provide an empty array
+        customer.due_dates = [];
+      }
+    } else {
+      customer.due_dates = [];
+    }
+    
+    res.json({ customer });
+  } catch (err) {
+    console.error('Error fetching customer:', err);
+    res.status(500).json({ message: 'Error fetching customer' });
+  }
+});
 
+// 2. Update customer - FIXED VERSION
+app.put('/api/customers/:customerId', authenticateToken, async (req, res) => {
+  try {
+    const customerId = req.params.customerId;
+    const updates = req.body;
+    
+    console.log('Customer update request:', {
+      customerId,
+      updates
+    });
+    
+    // Ensure due_dates is properly JSON stringified if it's an array
+    if (updates.due_dates && Array.isArray(updates.due_dates)) {
+      updates.due_dates = JSON.stringify(updates.due_dates);
+    }
+    
+    // Update only outstanding_rentals and due_dates
+    const query = `UPDATE Customer SET outstanding_rentals = ?, due_dates = ? WHERE customer_id = ?`;
+    await db.query(query, [
+      updates.outstanding_rentals || 0,
+      updates.due_dates,
+      customerId
+    ]);
+    
+    // Return success without trying to fetch the updated customer
+    res.json({ 
+      success: true, 
+      message: 'Customer updated successfully' 
+    });
+  } catch (err) {
+    console.error('Error updating customer:', err);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error updating customer: ' + err.message 
+    });
+  }
+});
 
+// 3. Create rentals table if needed
+// The SQL for this would be:
+/*
+CREATE TABLE IF NOT EXISTS rentals (
+  rental_id INT PRIMARY KEY AUTO_INCREMENT,
+  customer_id INT NOT NULL,
+  dvd_id INT NOT NULL,
+  rental_date DATE NOT NULL,
+  due_date DATE NOT NULL,
+  return_date DATE,
+  status VARCHAR(20) NOT NULL,
+  title VARCHAR(255),
+  customer_name VARCHAR(255),
+  FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
+  FOREIGN KEY (dvd_id) REFERENCES DVD(id)
+);
+*/
 
+// 4. Rental creation route
+app.post('/api/rentals', authenticateToken, async (req, res) => {
+  try {
+    const rentalData = req.body;
+    
+    console.log('Creating rental:', rentalData);
+    
+    // Validate input
+    if (!rentalData.customer_id || !rentalData.dvd_id || !rentalData.due_date) {
+      return res.status(400).json({ message: 'Missing required rental information' });
+    }
+    
+    // Insert new rental record
+    const query = 'INSERT INTO rentals SET ?';
+    const [result] = await db.query(query, [rentalData]);
+    
+    res.status(201).json({ 
+      success: true,
+      message: 'Rental created successfully',
+      rental_id: result.insertId
+    });
+  } catch (err) {
+    console.error('Error creating rental:', err);
+    res.status(500).json({ 
+      success: false,
+      message: 'Error creating rental: ' + err.message 
+    });
+  }
+});
 
+// 5. Get all rentals
+app.get('/api/rentals', authenticateToken, async (req, res) => {
+  try {
+    // Get all rentals
+    const query = "SELECT * FROM rentals ORDER BY rental_date DESC";
+    const [rows] = await db.query(query);
+    
+    res.json({ rentals: rows });
+  } catch (err) {
+    console.error('Error fetching rentals:', err);
+    res.status(500).json({ message: 'Error fetching rentals: ' + err.message });
+  }
+});
 
+// 6. Get outstanding rentals
+app.get('/api/rentals/outstanding', authenticateToken, async (req, res) => {
+  try {
+    // Get all rentals with status 'out' or 'overdue'
+    const query = "SELECT * FROM rentals WHERE status IN ('out', 'overdue') ORDER BY due_date ASC";
+    const [rows] = await db.query(query);
+    
+    res.json({ rentals: rows });
+  } catch (err) {
+    console.error('Error fetching outstanding rentals:', err);
+    res.status(500).json({ message: 'Error fetching outstanding rentals: ' + err.message });
+  }
+});
+
+// 7. Update rental status (for returns)
+app.put('/api/rentals/:rentalId/return', authenticateToken, async (req, res) => {
+  try {
+    const rentalId = req.params.rentalId;
+    const today = new Date().toISOString().split('T')[0];
+    
+    console.log('Processing return for rental:', rentalId);
+    
+    // Update the rental record
+    const updateQuery = 'UPDATE rentals SET status = ?, return_date = ? WHERE rental_id = ?';
+    await db.query(updateQuery, ['returned', today, rentalId]);
+    
+    // Get the rental to update the customer's outstanding_rentals
+    const [rentalRows] = await db.query('SELECT * FROM rentals WHERE rental_id = ?', [rentalId]);
+    if (rentalRows.length === 0) {
+      return res.status(404).json({ message: 'Rental not found' });
+    }
+    
+    const rental = rentalRows[0];
+    
+    // Get the customer
+    const [customerRows] = await db.query('SELECT * FROM Customer WHERE customer_id = ?', [rental.customer_id]);
+    if (customerRows.length === 0) {
+      return res.status(404).json({ message: 'Customer not found' });
+    }
+    
+    const customer = customerRows[0];
+    
+    // Update customer's outstanding_rentals count
+    let outstandingRentals = customer.outstanding_rentals - 1;
+    if (outstandingRentals < 0) outstandingRentals = 0;
+    
+    // Update customer's due_dates array
+    let dueDatesArray = [];
+    if (customer.due_dates) {
+      try {
+        // Handle JSON string case
+        if (typeof customer.due_dates === 'string') {
+          dueDatesArray = JSON.parse(customer.due_dates);
+        } else if (Array.isArray(customer.due_dates)) {
+          // Already an array, clone it
+          dueDatesArray = [...customer.due_dates];
+        }
+        
+        // Remove the returned rental's due date
+        dueDatesArray = dueDatesArray.filter(date => date !== rental.due_date);
+      } catch (e) {
+        // If due_dates is not valid JSON, reset it
+        dueDatesArray = [];
+      }
+    }
+    
+    // Update the customer
+    await db.query(
+      'UPDATE Customer SET outstanding_rentals = ?, due_dates = ? WHERE customer_id = ?',
+      [outstandingRentals, JSON.stringify(dueDatesArray), rental.customer_id]
+    );
+    
+    res.json({ 
+      success: true,
+      message: 'Rental returned successfully',
+      rental_id: rentalId
+    });
+  } catch (err) {
+    console.error('Error processing return:', err);
+    res.status(500).json({ 
+      success: false,
+      message: 'Error processing return: ' + err.message 
+    });
+  }
+});
 
 // Start the server
 const port = process.env.PORT || 5001;
