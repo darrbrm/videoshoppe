@@ -1,15 +1,23 @@
+/*
+
+Allows all users to perform CRUD manipulations on the inventory (DVDS). Makes requests to middleware which processes backend requests via HTTP.
+Resources: ChatGPT (for refactoring, implementation, explaining to us what the code does)
+
+*/
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../Inventory/Inventory.css'; 
 import '../VideoShoppeUIStyleSheets/GenericStyle.css';
 import { useMyContext } from '../NavigationManager/NavigationManager.jsx';
 import { useNavigate } from 'react-router-dom';
-import lock_icon from '../Assets/lock_icon.svg'; // Assuming you want to use the same lock icon
+import lock_icon from '../Assets/lock_icon.svg'; 
 
 const Inventory = () => {
-  const { setState } = useMyContext();
-  const navigate = useNavigate();
+  const { setState } = useMyContext(); // tells React that we are on the inventory page
+  const navigate = useNavigate(); // allows us to navigate across pages
 
+// JSON data for the DVD entity
   const [dvds, setDvds] = useState([]);
   const [formData, setFormData] = useState({
     title: '',
@@ -22,14 +30,16 @@ const Inventory = () => {
     available: true,
     requested_count: 0,
   });
+// helper modules for error cases, querying
   const [error, setError] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchBy, setSearchBy] = useState('genre'); // Default search by genre
+  const [searchBy, setSearchBy] = useState('genre'); // Default search by genre, can change to director, actor, movie title
 
-  const backendUrl = 'http://localhost:5001'; // Ensure your backend is running at this URL
+  const backendUrl = 'http://localhost:5001'; // Defines backend url
 
+// validates session by checking token
   useEffect(() => {
     const fetchDvds = async () => {
       setLoading(true);
@@ -39,7 +49,7 @@ const Inventory = () => {
         setLoading(false);
         return;
       }
-
+// attempts to fetch backend data to fill table, throws error upon failure
       try {
         const response = await axios.get(`${backendUrl}/api/dvds`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -71,6 +81,7 @@ const Inventory = () => {
     setSearchBy(e.target.value);
   };
 
+// allows user to query by title, actor(s), director(s), genre(s)
   const filteredDvds = dvds.filter((dvd) => {
     if (searchTerm === '') return true;
     if (searchBy === 'genre' && dvd.genre.toLowerCase().includes(searchTerm.toLowerCase())) return true;
@@ -79,6 +90,7 @@ const Inventory = () => {
     return false;
   });
 
+// ensures all fields are filled
   const validateForm = () => {
     if (!formData.title || !formData.genre || !formData.director) {
       setError('Please fill in all required fields');
@@ -87,6 +99,7 @@ const Inventory = () => {
     return true;
   };
 
+// submits form to backend after validating session
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -134,11 +147,13 @@ const Inventory = () => {
     }
   };
 
+// clicking on the row allows updating/deleting of data, brings up a form
   const handleRowClick = (dvd) => {
     setIsCreating(false);
     setFormData(dvd);
   };
 
+// validates session, then deletes (upon click of the delete button)
   const handleDeleteDvd = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -169,10 +184,10 @@ const Inventory = () => {
         requested_count: 0,
       });
     } catch (err) {
-      setError('Error deleting DVD: ' + (err.response?.data?.message || err.message || 'Unknown error'));
+      setError('Error deleting DVD: ' + (err.response?.data?.message || err.message || 'Unknown error')); // throw error of deletion fails
     }
   };
-
+// brings up form to input data (JSON format)
   const handleCreateNewDvd = () => {
     setIsCreating(true);
     setFormData({
@@ -188,15 +203,16 @@ const Inventory = () => {
     });
   };
 
+// allows state to be set to logged out and redirects to login page
   const handleLogout = () => {
     setState('Logged out');
     localStorage.removeItem('token');
     navigate('/login');
   };
 
+// HTML that is returned by React
   return (
     <div className="container">
-      {/* Logout Button */}
       <button className="logout" onClick={handleLogout}>
         <img src={lock_icon} alt="Lock" />
       </button>
@@ -213,7 +229,6 @@ const Inventory = () => {
       {error && <div className="error-message">{error}</div>}
       {loading && <div className="loading-message">Loading...</div>}
 
-      {/* Search Section */}
       <div className="search-section">
         <label>Search by</label>
         <select value={searchBy} onChange={handleSearchByChange}>

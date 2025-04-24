@@ -1,3 +1,11 @@
+/*
+
+Fulfills the use case of customer wanting to purchase or rent a dvd. Allows for new customers to be entered into the system.
+Resources: 
+    ChatGPT (for refactoring, implementation, explaining to us what the code does)
+
+*/
+
 import React, { useState, useEffect } from 'react';
 import '../RentSellDVD/RentSellDVD.css';
 import '../VideoShoppeUIStyleSheets/GenericStyle.css';

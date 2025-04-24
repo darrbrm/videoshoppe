@@ -1,3 +1,13 @@
+/*
+
+Shows which customers are renting which DVDs, along with due dates. Can return DVDs from this same page.
+Resources: 
+    ChatGPT (for refactoring, implementation, explaining to us what the code does)
+
+*/
+
+
+
 import React, { useState, useEffect } from 'react';
 import '../VideoShoppeUIStyleSheets/TrackRental.css';
 import '../VideoShoppeUIStyleSheets/GenericStyle.css';

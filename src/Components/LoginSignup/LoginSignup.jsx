@@ -1,3 +1,9 @@
+/* 
+This provides a page from which one may log in or sign up. Renders different buttons/field data depending on if one is logging in or signing up.
+Resources:  https://www.youtube.com/watch?v=8QgQKRcAUvM,
+            ChatGPT for refactoring/debugging/explaining what the code does
+*/
+
 import React, { useState } from 'react';
 import '../VideoShoppeUIStyleSheets/GenericStyle.css';
 import key_icon from '../Assets/key_icon.svg';
@@ -8,49 +14,52 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const LoginSignup = () => {
-  const [action, setAction] = useState('Log in');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [adminPassword, setAdminPassword] = useState('');
-  const { setState } = useMyContext();
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [action, setAction] = useState('Log in'); // renders page according to if log in is desired
+  const [username, setUsername] = useState(''); // state trigger for username field
+  const [password, setPassword] = useState(''); // state trigger for password field
+  const [adminPassword, setAdminPassword] = useState(''); // state trigger for admin password field
+  const { setState } = useMyContext(); // context manager, helps React know what page is currently being rendered
+  const [error, setError] = useState(''); // error handler
+  const [loading, setLoading] = useState(false); // load handler
+  const navigate = useNavigate(); // allows for url routing
 
 
-  const backendUrl = 'http://localhost:5001';
+  const backendUrl = 'http://localhost:5001'; // declares backend url
 
+  // manages submission of credentials for either login or signup
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      const endpoint = action === 'Log in' ? '/api/login' : '/api/register';
+      const endpoint = action === 'Log in' ? '/api/login' : '/api/register'; // state is login, if so, set endpoint accordingly, otherwise register
       const payload = action === 'Log in' 
-        ? { username, password }
-        : { username, password, adminPassword };
+        ? { username, password } //payload for login is username and password
+        : { username, password, adminPassword }; //payload for register is new username, new password, admin password
       
+      // POST request to server and awaiting data
       const response = await axios.post(`${backendUrl}${endpoint}`, payload, {
         headers: { 'Content-Type': 'application/json' }
       });
       
-      if (response.data.success) {
+      if (response.data.success) { // if login payload is valid, provide a token and redirect to homepage
         if (action === 'Log in') {
           localStorage.setItem('token', response.data.token);
         }
         setState('Logged in');
         navigate('/home');
       } else {
-        setError(response.data.message || 'Login failed.');
+        setError(response.data.message || 'Login failed.'); // otherwise if credentials are invalid, raise an exception
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'An error occurred. Please try again.');
+      setError(err.response?.data?.message || 'An error occurred. Please try again.'); // edge cases
     } finally {
-      setLoading(false);
+      setLoading(false); // end loading
     }
   };
-
+  
+// HTML returned by React
   return (
     <div className="container">
       <div className="header">

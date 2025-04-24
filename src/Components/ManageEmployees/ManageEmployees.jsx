@@ -1,3 +1,10 @@
+/*
+
+Allows admins only to perform CRUD manipulations on the employee data. Makes requests to middleware which processes backend requests via HTTP.
+Resources: ChatGPT (for refactoring, implementation, explaining to us what the code does)
+
+*/
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../VideoShoppeUIStyleSheets/ManageEmployees.css';
@@ -7,9 +14,10 @@ import { useNavigate } from 'react-router-dom';
 import lock_icon from '../Assets/lock_icon.svg';
 
 const ManageEmployees = () => {
-  const { setState } = useMyContext();
-  const navigate = useNavigate(); 
+  const { setState } = useMyContext(); // sets the context, telling react what page to render
+  const navigate = useNavigate();  // allows url navigation
 
+// JSON data for employee information
   const [employees, setEmployees] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
@@ -17,13 +25,15 @@ const ManageEmployees = () => {
     phone_number: '',
     full_time: false,
     hours_worked: 0,
+    isAdmin: false
   });
-  const [error, setError] = useState('');
-  const [isCreating, setIsCreating] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(''); // error handling
+  const [isCreating, setIsCreating] = useState(false); // renders the form based on whether the admin wants to create a new employee
+  const [loading, setLoading] = useState(false); // page loading
 
-  const backendUrl = 'http://localhost:5001';
+  const backendUrl = 'http://localhost:5001'; // declaring backend url
 
+// loads page after verifying token
   useEffect(() => {
     const fetchEmployees = async () => {
       setLoading(true);
@@ -33,16 +43,16 @@ const ManageEmployees = () => {
         setLoading(false);
         return;
       }
-
+// returns all employee data after verifying token, viewed as a table
       try {
         const response = await axios.get(`${backendUrl}/api/employees`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setEmployees(response.data.employees || []);
-      } catch (err) {
-        setError('Error fetching employees');
+        setEmployees(response.data.employees || []); // returns an empty list if the employees table is empty
+      } catch (err) { 
+        setError('Error fetching employees'); // throws an error if the fetch fails
       } finally {
-        setLoading(false);
+        setLoading(false); 
       }
     };
 
@@ -57,6 +67,7 @@ const ManageEmployees = () => {
     });
   };
 
+// ensures form is completely filled
   const validateForm = () => {
     if (!formData.name || !formData.address || !formData.phone_number) {
       setError('Please fill in all fields');
@@ -65,6 +76,7 @@ const ManageEmployees = () => {
     return true;
   };
 
+// validates session and manages the creation of employees
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -104,21 +116,23 @@ const ManageEmployees = () => {
         hours_worked: 0,
       });
     } catch (err) {
-      setError('Error saving employee: ' + (err.response?.data?.message || err.message || 'Unknown error'));
+      setError('Error saving employee: ' + (err.response?.data?.message || err.message || 'Unknown error')); // raises an exception if saving data fails
     }
   };
 
+// row click allows for editing data of the tuple (instance of employee)
   const handleRowClick = (employee) => {
     setIsCreating(false);
     setFormData(employee);
   };
-
+// routes user to login page and clears token
   const handleLogout = () => {
     setState('Logged out');
     localStorage.removeItem('token');
     navigate('/login');
   };
 
+// manages deletion of employee after validating session
   const handleDeleteEmployee = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -149,6 +163,7 @@ const ManageEmployees = () => {
     }
   };
 
+// JSON data for creating a new employee with a form
   const handleCreateNewEmployee = () => {
     setIsCreating(true);
     setFormData({
@@ -160,6 +175,7 @@ const ManageEmployees = () => {
     });
   };
 
+// HTML returned by React
   return (
     <div className="container">
       <div className="header">

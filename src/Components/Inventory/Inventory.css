@@ -1,4 +1,11 @@
-/* Inventory table */
+/*
+
+Inventory table styling
+Resources: 
+    CSS documentation: https://www.w3schools.com/css/
+    ChatGPT (for refactoring, implementation, explaining to us what the code does)
+
+*/
 .inventory-table {
     width: 100%;
     margin-top: 30px;

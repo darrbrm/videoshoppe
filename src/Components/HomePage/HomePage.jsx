@@ -1,3 +1,8 @@
+/* 
+This is the homepage, from which all of the use cases can be accessed. 
+Resources: ChatGPT (for refactoring, implementation, explaining to us what the code does)
+*/
+
 import React from 'react';
 import '../VideoShoppeUIStyleSheets/GenericStyle.css';
 import lock_icon from '../Assets/lock_icon.svg';
@@ -7,15 +12,16 @@ import { useAuth } from '../AdminAuth/AdminAuth';
 
 
 const HomePage = () => {
-    const { setState } = useMyContext();
-    const {isAuthenticated, isAdmin} = useAuth();
-    const navigate = useNavigate(); // <-- Add this
+    const { setState } = useMyContext(); // Sets up context, telling React when to present this page.
+    const {isAuthenticated, isAdmin} = useAuth();   // Renders certain buttons depending on whether logged in as admin or regular user
+    const navigate = useNavigate(); 
 
     const handleNavigation = (newState, path) => {
         setState(newState);
-        navigate(path); // <-- Update the URL properly
+        navigate(path); // navigates based on url path
     };
 
+// manages button rendering and dileniates normal users from admins
     if (isAuthenticated && isAdmin) {
         return (
             <div className='container'>

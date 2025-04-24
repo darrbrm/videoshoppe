@@ -1,3 +1,14 @@
+/*
+
+Middleware server which receives and validates HTTP requests and queries the backend SQL db according to the request.
+Resources: 
+    ChatGPT (for refactoring, implementation, explaining to us what the code does)
+    Video Explanation for how to build middleware with express javascript: https://www.youtube.com/watch?v=lY6icfhap2o
+
+*/
+
+
+
 require('dotenv').config();
 const express = require('express');
 const bcrypt = require('bcrypt');
@@ -15,25 +26,25 @@ app.use(express.json());
 const db = mysql.createPool({
   host: 'localhost',
   user: 'root',
-  password: process.env.DB_PASSWORD || 'password', // Ensure the DB password is in your .env file
+  password: process.env.DB_PASSWORD || 'password', // Ensure the DB password is in the .env file
   database: 'videoshoppe',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
 }).promise();
 
-console.log('Database connection initialized');
+console.log('Database connection initialized'); // if program fails before this point this will not print
 
-// Use environment variables for security
+// Use environment variables for security (look in .env)
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 const DEFAULT_ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || 'defaultAdminPass';
 
-// Middleware to verify JWT
+// Middleware to verify JWT with bcrypt
 const authenticateToken = (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1]; // Extract token from 'Authorization' header
 
   if (!token) {
-    return res.status(401).json({ success: false, message: 'Access denied. No token provided.' });
+    return res.status(401).json({ success: false, message: 'Access denied. No token provided.' }); // if no token, refuse request
   }
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
@@ -55,21 +66,21 @@ app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    return res.status(400).json({ success: false, message: 'Please fill in all fields' });
+    return res.status(400).json({ success: false, message: 'Please fill in all fields' }); // if either field is empty raise exception
   }
 
   try {
-    const [users] = await db.query('SELECT * FROM Employee WHERE username = ?', [username]);
+    const [users] = await db.query('SELECT * FROM Employee WHERE username = ?', [username]); // query username with user input
 
     if (users.length === 0) {
-      return res.status(400).json({ success: false, message: 'Invalid username or password' });
+      return res.status(400).json({ success: false, message: 'Invalid username or password' }); // if no match, raise exception
     }
 
     const employee = users[0];
-    const isPasswordCorrect = await bcrypt.compare(password, employee.password);
+    const isPasswordCorrect = await bcrypt.compare(password, employee.password); // compares the input password to what was returned from backend
 
     if (!isPasswordCorrect) {
-      return res.status(400).json({ success: false, message: 'Invalid username or password' });
+      return res.status(400).json({ success: false, message: 'Invalid username or password' }); // if no match, raise exception
     }
 
     // Create a JWT token
@@ -79,7 +90,7 @@ app.post('/api/login', async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    res.status(200).json({ success: true, message: 'Login successful', token });
+    res.status(200).json({ success: true, message: 'Login successful', token }); //if sucessful, send message to console and provide token
   } catch (err) {
     console.error('Error during login:', err);
     res.status(500).json({ success: false, message: 'Server error during login' });
@@ -90,13 +101,13 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/register', async (req, res) => {
   const { username, password, adminPassword } = req.body;
 
-  // Check if admin password matches the default admin password
+  // Check if admin password matches the  admin password
   if (adminPassword !== DEFAULT_ADMIN_PASSWORD) {
-    return res.status(400).json({ success: false, message: 'Invalid admin password' });
+    return res.status(400).json({ success: false, message: 'Invalid admin password' }); // if no match, raise exception
   }
 
   if (!username || !password || !adminPassword) {
-    return res.status(400).json({ success: false, message: 'Please provide all required fields' });
+    return res.status(400).json({ success: false, message: 'Please provide all required fields' }); // if one field empty, raise exception
   }
 
   try {

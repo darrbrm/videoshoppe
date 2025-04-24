@@ -1,3 +1,13 @@
+/*
+
+Styling for RentSellDVD.jsx
+Resources: 
+    CSS documentation: https://www.w3schools.com/css/
+    ChatGPT (for refactoring, implementation, explaining to us what the code does)
+
+*/
+
+
 /* Main container with background, padding, and rounded corners */
 .container {
     width: 80%;
