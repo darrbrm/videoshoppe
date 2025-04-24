@@ -46,9 +46,6 @@ const HomePage = () => {
                     <div className='submit' onClick={() => handleNavigation('Track Rental', '/track-rental')}>
                         Track Rental
                     </div>
-                    <div className='submit' onClick={() => handleNavigation('Return DVD', '/return-dvd')}>
-                        Return DVD
-                    </div>
                     <div className='submit' onClick={() => handleNavigation('Manage Alerts', '/manage-alerts')}>
                         Manage Alerts
                     </div>
