@@ -451,9 +451,6 @@ const RentSellDVD = () => {
                 <img src={lock_icon} alt='Lock' />
             </button>
 
-            <button className="back-button" onClick={() => navigate('/home')}>
-              Back
-             </button>
 
             {/* Header */}
             <div className="header">
